@@ -15,7 +15,7 @@ const qualityPresets = {
 , LOW: '36'
 }
 
-function getQuality(presets, quality) {
+const getQuality = (presets, quality) => {
   return quality.toUpperCase() in presets? presets[quality.toUpperCase()]
        : /* _ */                           quality
 }
