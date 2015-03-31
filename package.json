@@ -1,6 +1,6 @@
-{ "name": "dizzay",
-, "description": "Plays music from a plug.dj room in VLC.",
-, "version": "0.1.0",
+{ "name": "dizzay"
+, "description": "Plays music from a plug.dj room in VLC."
+, "version": "0.2.0"
 , "license": "MIT"
 , "keywords": [ "plug", "plug.dj", "vlc", "music" ]
 , "bugs": "https://github.com/goto-bus-stop/dizzay/issues"
@@ -9,10 +9,11 @@
   { "type": "git"
   , "url" : "http://github.com/goto-bus-stop/dizzay.git"
   }
-, "main": "lib/VLCPlayer",
+, "main": "lib/VLCPlayer"
 , "bin": "lib/app"
 , "dependencies":
-  { "debug": "2.x",
+  { "curry": "1.x"
+  , "debug": "2.x"
   , "lodash.compose": "^2.4.1"
   , "object-assign": "2.x"
   , "plugged": "0.x" }

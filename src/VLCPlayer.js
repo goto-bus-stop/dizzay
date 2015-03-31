@@ -1,91 +1,75 @@
 import cp from 'child_process'
 import assign from 'object-assign'
 import compose from 'lodash.compose'
+import curry from 'curry'
 
 const debug = require('debug')('dizzay:vlc-player')
 
+// media source IDs
+const YOUTUBE    = 1
+const SOUNDCLOUD = 2
+
 const qualityPresets = {
-  HIGH: '247+172/22',
-  MEDIUM: '43/18',
-  LOW: '36'
+  HIGH: '247+172/22'
+, MEDIUM: '43/18'
+, LOW: '36'
 }
 
-// Plays YouTube videos and SoundCloud tracks in VLC.
-export default function VLCPlayer(plug, options = {}) {
-  if (!(this instanceof VLCPlayer)) return new VLCPlayer(plug, options)
-  this.vlc = null
-  this.plug = plug
-  this.quality = qualityPresets.MEDIUM
-  // VLC command line parameters.
-  this.parameters = [ '--no-repeat' ]
+function getQuality(presets, quality) {
+  return quality.toUpperCase() in presets? presets[quality.toUpperCase()]
+       : /* _ */                           quality
+}
 
-  plug.on(plug.ADVANCE, compose(this.play.bind(this),
-                                plug.getCurrentMedia.bind(plug)))
+const sendCommand = vlc => command => vlc.stdin.write(`${command}\n`)
+
+const playMedia = curry(function (vlc, quality, startAt, media) {
+  const command = sendCommand(vlc)
+
+  if (!media) return command('stop')
+
+  const url = media.format === YOUTUBE? `https://youtube.com/watch?v=${media.cid}`
+            : /* format = SOUNDCLOUD */ `https://api.soundcloud.com/tracks/${media.cid}`
+
+  const params = media.format === YOUTUBE? [ '-f', quality ]
+               : /* format = SOUNDCLOUD */ []
+
+  cp.exec('youtube-dl', [ '--get-url', ...params, url ], (err, stdout, stderr) => {
+    if (err) throw err
+
+    command(`add ${stdout}`)
+    command(`next`)
+    startAt > 0 && command(`seek ${startAt}`)
+  })
+})
+
+//
+// Plays YouTube videos and SoundCloud tracks in VLC.
+//
+// options.vlcParams takes an array of command line parameters for the vlc
+// process.
+// options.quality takes a quality string for youtube-dl. It is only used
+// for YouTube videos, not for SoundCloud tracks.
+//
+// Returns a control object with a `play` method that takes a plug.dj media
+// object with .format and .cid properties and starts playback of a new video,
+// a `stop` method that stops playback and closes VLC, and a `vlc` property
+// referencing the VLC child process.
+//
+export default function vlcPlayer(plug, { vlcParams = []
+                                        , quality = qualityPresets.MEDIUM }) {
+  const vlc = cp.spawn('vlc', [ '--extraintf', 'rc', '--no-repeat', ...vlcParams ])
+
+  const getMedia = plug.getCurrentMedia.bind(plug)
+  const play = playMedia(vlc, getQuality(qualityPresets, quality))
+  const stop = vlc.kill.bind(vlc, 'SIGTERM')
+
+  plug.on(plug.ADVANCE, compose(play(0), getMedia))
   plug.on(plug.JOINED_ROOM, () => {
-    const media = plug.getCurrentMedia()
-    if (media) {
-      // TODO pass proper current time
-      this.play(media, 0)
-    }
+    // TODO pass proper current time
+    const startAt = 0
+    const media = getMedia()
+    media && play(startAt, media)
   })
 
-  if (options.quality) {
-    let q = options.quality.toUpperCase()
-    this.quality = q in qualityPresets ? qualityPresets[q] : options.quality
-  }
+  return { play: play(0), stop, vlc }
 }
-
-assign(VLCPlayer.prototype, {
-
-  // Plays a song in VLC.
-  // Starts VLC if it's not yet running.
-  play(media, startAt = 0) {
-
-    if (!media) {
-      if (this.vlc) this.stop()
-      return
-    }
-
-    if (!this.vlc) {
-      this.vlc = cp.spawn('vlc',
-                          [ '--extraintf', 'rc', ...this.parameters ],
-                          { stdio: 'pipe' })
-    }
-
-    // full URL so youtube-dl knows where to get the goods
-    let url = media.format === 1
-            ? `https://youtube.com/watch?v=${media.cid}`
-            : `https://api.soundcloud.com/tracks/${media.cid}`
-
-    debug('start dl', url)
-    let ytParams = media.format === 1
-                 ? [ '-f', this.quality ]
-                 : []
-    let dl = cp.spawn('youtube-dl',
-                      [ '--get-url', ...ytParams, url ],
-                      { stdio: 'pipe' })
-    dl.stdout.on('readable', () => {
-      const val = dl.stdout.read()
-      if (val !== null) {
-        this.command('add', val + '')
-        this.command('next')
-        if (startAt > 0) {
-          this.seek(startAt)
-        }
-      }
-    })
-  },
-
-  seek(startAt) {
-    this.command('seek', startAt)
-  },
-
-  stop() {
-    this.command('stop')
-  },
-
-  command(command, ...args) {
-    debug('command', command, args.join(' '))
-    this.vlc.stdin.write(`${command} ${args.join(' ')}\n`)
-  }
-})
