@@ -33,7 +33,7 @@ const playMedia = curry(function (vlc, quality, startAt, media) {
   const params = media.format === YOUTUBE? [ '-f', quality ]
                : /* format = SOUNDCLOUD */ []
 
-  cp.exec('youtube-dl', [ '--get-url', ...params, url ], (err, stdout, stderr) => {
+  cp.exec(`youtube-dl --get-url ${params.join(' ')} ${JSON.stringify(url)}`, (err, stdout, stderr) => {
     if (err) throw err
 
     command(`add ${stdout}`)
