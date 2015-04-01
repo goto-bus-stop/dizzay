@@ -1,6 +1,6 @@
 { "name": "dizzay"
 , "description": "Plays music from a plug.dj room in VLC."
-, "version": "0.3.0"
+, "version": "0.3.1"
 , "license": "MIT"
 , "keywords": [ "plug", "plug.dj", "vlc", "music" ]
 , "bugs": "https://github.com/goto-bus-stop/dizzay/issues"
@@ -9,7 +9,7 @@
   { "type": "git"
   , "url" : "http://github.com/goto-bus-stop/dizzay.git"
   }
-, "main": "lib/VLCPlayer"
+, "main": "lib/vlc-player"
 , "bin": "lib/app"
 , "dependencies":
   { "commander": "2.x"
