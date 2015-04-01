@@ -4,9 +4,9 @@ import vlcPlayer from './vlc-player'
 
 program
   .description('play music from a plug.dj room in VLC')
-  .option('-u, --user, --email <email>',
+  .option('-u, --user <email>',
           'email address of your plug.dj account')
-  .option('-p, --pass, --password <password>',
+  .option('-p, --password <password>',
           'password of your plug.dj account')
   .option('-r, --room <room>',
           'room slug to join (the room url without https://plug.dj/)')
@@ -35,7 +35,7 @@ function main(args) {
   plug.on(plug.LOGIN_ERROR, onError)
   plug.on(plug.CONN_ERROR,  onError)
 
-  plug.login({ email: args.email
+  plug.login({ email: args.user
              , password: args.password })
 
   plug.once(plug.LOGIN_SUCCESS, () => {
