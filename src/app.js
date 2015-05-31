@@ -1,6 +1,10 @@
-import Plugged from 'plugged'
+import login from 'plug-login'
+import socket from 'plug-socket'
+import request from 'request'
 import program from 'commander'
 import vlcPlayer from './vlc-player'
+
+const debug = require('debug')('dizzay:cli')
 
 program
   .description('play music from a plug.dj room in VLC')
@@ -23,24 +27,43 @@ main(program)
 
 function main(args) {
 
-  const plug = new Plugged()
-  plug.invokeLogger(require('debug')('plugged'))
+  login(args.user, args.password, { authToken: true }, (e, result) => {
+    if (e) throw e
+    let user = result.body.data[0]
+    let plug = socket(result.token)
+    plug.request = request.defaults({ jar: result.jar, json: true })
+    plug.once('ack', () => {
+      debug('connected')
+      vlcPlayer(plug, { quality: args.quality })
+      plug.request.post(
+        'https://plug.dj/_/rooms/join'
+      , { body: { slug: args.room } }
+      , (e, _, body) => {
+        if (e) throw e
+        debug('joined', args.room)
+        plug.request(
+          'https://plug.dj/_/rooms/state'
+        , (e, _, body) => {
+          if (e) throw e
+          plug.emit('roomState', body.data[0])
+        })
+      })
+    })
 
-  const onError = e => {
-    console.error(e)
-    throw e
-  }
+    plug.on('advance', data => {
+      debug('advance', data)
+      let media = data.m
+      if (media.cid) {
+        debug('Now Playing:', `${media.author} - ${media.title}`)
+      }
+    })
+    plug.on('roomState', state => {
+      if (state.playback.media) {
+        let media = state.playback.media
+        debug('Now Playing:', `${media.author} - ${media.title}`)
+      }
+    })
 
-  plug.on(plug.SOCK_ERROR,  onError)
-  plug.on(plug.LOGIN_ERROR, onError)
-  plug.on(plug.CONN_ERROR,  onError)
-
-  plug.login({ email: args.user
-             , password: args.password })
-
-  plug.once(plug.LOGIN_SUCCESS, () => {
-    vlcPlayer(plug, { quality: args.quality })
-    plug.connect(args.room)
   })
 
 }

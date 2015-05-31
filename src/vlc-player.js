@@ -52,17 +52,11 @@ export default function vlcPlayer(plug, { vlcParams = []
                                         , quality = qualityPresets.MEDIUM }) {
   const vlc = cp.spawn('vlc', [ '--extraintf', 'rc', '--no-repeat', ...vlcParams ])
 
-  const getMedia = plug.getCurrentMedia.bind(plug)
   const play = playMedia(vlc, getQuality(qualityPresets, quality))
   const stop = vlc.kill.bind(vlc, 'SIGTERM')
 
-  plug.on(plug.ADVANCE, compose(play(0), getMedia))
-  plug.on(plug.JOINED_ROOM, () => {
-    // TODO pass proper current time
-    const startAt = 0
-    const media = getMedia()
-    media && play(startAt, media)
-  })
+  plug.on('advance', advance => play(0)(advance.m))
+  plug.on('roomState', state => play(0)(state.playback.media))
 
   return { play: play(0), stop, vlc }
 }

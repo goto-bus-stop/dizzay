@@ -18,7 +18,8 @@
   , "debug": "2.x"
   , "lodash.compose": "^2.4.1"
   , "object-assign": "2.x"
-  , "plugged": "0.x" }
+  , "plug-login": "*"
+  , "plug-socket": "*" }
 , "devDependencies":
   { "babel": "4.x" }
 , "scripts":
