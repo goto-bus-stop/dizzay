@@ -3,11 +3,9 @@ import assign from 'object-assign'
 import compose from 'lodash.compose'
 import curry from 'curry'
 
-const debug = require('debug')('dizzay:vlc-player')
+import { getUrl } from './util'
 
-// media source IDs
-const YOUTUBE    = 1
-const SOUNDCLOUD = 2
+const debug = require('debug')('dizzay:vlc-player')
 
 const qualityPresets = {
   HIGH: '247+172/22'
@@ -21,25 +19,20 @@ const getQuality = (presets, quality) => {
 }
 
 const sendCommand = vlc => command => vlc.stdin.write(`${command}\n`)
+const enqueue = vlc => startAt => url => {
+  debug('enqueue', url)
+  const command = sendCommand(vlc)
+  command(`add ${url}`)
+  command(`next`)
+  startAt > 0 && command(`seek ${startAt}`)
+}
 
 const playMedia = curry(function (vlc, quality, startAt, media) {
-  const command = sendCommand(vlc)
+  debug('playing', media)
+  if (!media) return sendCommand(vlc, 'stop')
 
-  if (!media) return command('stop')
-
-  const url = media.format === YOUTUBE? `https://youtube.com/watch?v=${media.cid}`
-            : /* format = SOUNDCLOUD */ `https://api.soundcloud.com/tracks/${media.cid}`
-
-  const params = media.format === YOUTUBE? [ '-f', quality ]
-               : /* format = SOUNDCLOUD */ []
-
-  cp.exec(`youtube-dl --get-url ${params.join(' ')} ${JSON.stringify(url)}`, (err, stdout, stderr) => {
-    if (err) throw err
-
-    command(`add ${stdout}`)
-    command(`next`)
-    startAt > 0 && command(`seek ${startAt}`)
-  })
+  getUrl(media, quality).fork(e => { throw e },
+                              enqueue(vlc)(startAt))
 })
 
 //
