@@ -13,7 +13,7 @@ program
   .option('-p, --password [password]',
           'password of your plug.dj account (optional, for login)')
   .option('-r, --room <room>',
-          'room slug to join (the room url without https://plug.dj/)')
+          'room url or slug to join')
   .option('-q, --quality [quality]',
           'video quality for YouTube videos. (low|medium|high) [medium]',
           'medium')
@@ -24,6 +24,8 @@ if (!program.room) missingArgument('--room')
 main(program)
 
 function main(args) {
+
+  args.room = args.room.replace(/^https:\/\/plug\.dj\//, '')
 
   const cb = (e, result) => {
     if (e) throw e
