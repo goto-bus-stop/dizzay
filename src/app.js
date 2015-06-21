@@ -8,10 +8,10 @@ const debug = require('debug')('dizzay:cli')
 
 program
   .description('play music from a plug.dj room in VLC')
-  .option('-u, --user <email>',
-          'email address of your plug.dj account')
-  .option('-p, --password <password>',
-          'password of your plug.dj account')
+  .option('-u, --user [email]',
+          'email address of your plug.dj account (optional, for login)')
+  .option('-p, --password [password]',
+          'password of your plug.dj account (optional, for login)')
   .option('-r, --room <room>',
           'room slug to join (the room url without https://plug.dj/)')
   .option('-q, --quality [quality]',
@@ -19,17 +19,15 @@ program
           'medium')
   .parse(process.argv)
 
-if (!program.user) missingArgument('--user')
-if (!program.password) missingArgument('--password')
 if (!program.room) missingArgument('--room')
 
 main(program)
 
 function main(args) {
 
-  login(args.user, args.password, { authToken: true }, (e, result) => {
+  const cb = (e, result) => {
     if (e) throw e
-    let user = result.body.data[0]
+    let user = args.user ? result.body.data[0] : {}
     let plug = socket(result.token)
     plug.request = request.defaults({ jar: result.jar, json: true })
     plug.once('ack', () => {
@@ -64,7 +62,10 @@ function main(args) {
       }
     })
 
-  })
+  }
+
+  if (args.user) login(args.user, args.password, { authToken: true }, cb)
+  else           login.guest({ authToken: true }, cb)
 
 }
 

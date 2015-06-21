@@ -23,7 +23,7 @@ $ npm run-script babel
 Finally, run with
 
 ```
-$ node lib/app.js --email EMAIL_ADDRESS --password PASSWORD --room ROOM_NAME
+$ node lib/app.js --room ROOM_NAME
 ```
 
 ## License
