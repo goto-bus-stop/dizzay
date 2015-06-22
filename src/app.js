@@ -19,7 +19,10 @@ program
           'medium')
   .parse(process.argv)
 
-if (!program.room) missingArgument('--room')
+if (!program.room) {
+  if (program.args.length) program.room = program.args[0]
+  else missingArgument('--room')
+}
 
 main(program)
 
