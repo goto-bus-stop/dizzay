@@ -17,6 +17,7 @@ Then clone the repo and build the code (ES6 → ES5 with [Babel](https://babeljs
 ```
 $ git clone https://github.com/goto-bus-stop/dizzay
 $ cd dizzay
+$ npm install
 $ npm run-script babel
 ```
 
