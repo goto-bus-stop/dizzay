@@ -10,7 +10,7 @@
   , "url" : "http://github.com/goto-bus-stop/dizzay.git"
   }
 , "main": "lib/vlc-player"
-, "bin": "lib/app"
+, "bin": "bin/dizzay"
 , "dependencies":
   { "commander": "2.x"
   , "curry": "1.x"

@@ -24,7 +24,7 @@ $ npm run-script babel
 Finally, run with
 
 ```
-$ node lib/app.js --room ROOM_NAME
+$ ./bin/dizzay ROOM_NAME
 ```
 
 ## License
