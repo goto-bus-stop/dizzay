@@ -1,6 +1,6 @@
 { "name": "dizzay"
 , "description": "Plays music from a plug.dj room in VLC."
-, "version": "0.4.0"
+, "version": "0.4.1"
 , "license": "MIT"
 , "keywords": [ "plug", "plug.dj", "vlc", "music" ]
 , "bugs": "https://github.com/goto-bus-stop/dizzay/issues"
