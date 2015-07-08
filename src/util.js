@@ -23,3 +23,8 @@ export const getUrl = (media, quality = 'best') => new Task((reject, resolve) =>
   })
 })
 
+const pad = n => n < 10 ? `0${n}` : n
+export const time = () => {
+  let now = new Date()
+  return `${pad(now.getHours() + 1)}:${pad(now.getMinutes() + 1)}`
+}

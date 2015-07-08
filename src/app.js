@@ -5,7 +5,7 @@ import program from 'commander'
 
 const debug = require('debug')('dizzay:cli')
 
-const modules = [ 'vlc-player' ]
+const modules = [ 'vlc-player', 'now-playing' ]
 
 program
   .description('play music from a plug.dj room in VLC')
@@ -67,21 +67,6 @@ function main(args) {
         })
       })
     })
-
-    plug.on('advance', data => {
-      debug('advance', data)
-      let media = data.m
-      if (media.cid) {
-        debug('Now Playing:', `${media.author} - ${media.title}`)
-      }
-    })
-    plug.on('roomState', state => {
-      if (state.playback.media) {
-        let media = state.playback.media
-        debug('Now Playing:', `${media.author} - ${media.title}`)
-      }
-    })
-
   }
 
   if (args.user) login(args.user, args.password, { authToken: true }, cb)
