@@ -1,6 +1,6 @@
 { "name": "dizzay"
 , "description": "Simple CLI for plug.dj."
-, "version": "0.6.0"
+, "version": "0.6.1"
 , "license": "MIT"
 , "keywords": [ "plug", "plug.dj", "vlc", "music", "mplayer" ]
 , "bugs": "https://github.com/goto-bus-stop/dizzay/issues"
