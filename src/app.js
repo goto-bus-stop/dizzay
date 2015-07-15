@@ -5,7 +5,7 @@ import program from 'commander'
 
 const debug = require('debug')('dizzay:cli')
 
-const modules = [ 'vlc-player', 'now-playing' ]
+const modules = [ 'vlc-player', 'now-playing', 'mplayer' ]
 
 program
   .description('play music from a plug.dj room in VLC')
