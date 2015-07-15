@@ -1,5 +1,5 @@
 { "name": "dizzay"
-, "description": "Plays music from a plug.dj room in VLC."
+, "description": "Simple CLI for plug.dj."
 , "version": "0.5.0"
 , "license": "MIT"
 , "keywords": [ "plug", "plug.dj", "vlc", "music" ]
