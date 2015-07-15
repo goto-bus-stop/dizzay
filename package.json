@@ -24,5 +24,6 @@
 , "devDependencies":
   { "babel": "4.x" }
 , "scripts":
-  { "babel": "./node_modules/.bin/babel --out-dir lib src" }
+  { "prepublish": "npm run babel"
+  , "babel": "./node_modules/.bin/babel --out-dir lib src" }
 }
