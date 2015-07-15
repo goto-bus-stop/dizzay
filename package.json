@@ -2,7 +2,7 @@
 , "description": "Simple CLI for plug.dj."
 , "version": "0.5.0"
 , "license": "MIT"
-, "keywords": [ "plug", "plug.dj", "vlc", "music" ]
+, "keywords": [ "plug", "plug.dj", "vlc", "music", "mplayer" ]
 , "bugs": "https://github.com/goto-bus-stop/dizzay/issues"
 , "author": "goto-bus-stop <rene@kooi.me>"
 , "repository":
