@@ -2,6 +2,7 @@ import { execSync as exec, spawn } from 'child_process'
 import { getUrl } from './util'
 import pluck from 'pluck'
 import request from 'request'
+import compose from 'lodash.compose'
 
 const debug = require('debug')('dizzay:mplayer')
 
@@ -38,7 +39,7 @@ export default function mplayer(plug) {
     })
   }
 
-  const next = media => media && media.cid? getUrl(media, 'bestaudio').map(play)
+  const next = media => media && media.cid? getUrl(media, 'bestaudio').fork(e => { throw e }, play)
                       : /* otherwise */     _instance && _instance.stop()
 
   plug.on('advance',   compose(next, pluck('m')))
