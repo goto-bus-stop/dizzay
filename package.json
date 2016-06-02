@@ -1,29 +1,41 @@
-{ "name": "dizzay"
-, "description": "Simple CLI for plug.dj."
-, "version": "0.6.1"
-, "license": "MIT"
-, "keywords": [ "plug", "plug.dj", "vlc", "music", "mplayer" ]
-, "bugs": "https://github.com/goto-bus-stop/dizzay/issues"
-, "author": "goto-bus-stop <rene@kooi.me>"
-, "repository":
-  { "type": "git"
-  , "url" : "http://github.com/goto-bus-stop/dizzay.git"
+{
+  "name": "dizzay",
+  "description": "Simple CLI for plug.dj.",
+  "version": "0.6.1",
+  "license": "MIT",
+  "keywords": [
+    "plug",
+    "plug.dj",
+    "vlc",
+    "music",
+    "mplayer"
+  ],
+  "bugs": "https://github.com/goto-bus-stop/dizzay/issues",
+  "author": "goto-bus-stop <rene@kooi.me>",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/goto-bus-stop/dizzay.git"
+  },
+  "main": "lib/vlc-player",
+  "bin": "bin/dizzay",
+  "dependencies": {
+    "commander": "2.x",
+    "curry": "1.x",
+    "data.task": "3.x",
+    "debug": "2.x",
+    "lodash.compose": "^2.4.1",
+    "object-assign": "4.0.1",
+    "pluck": "0.x",
+    "plug-login": "^0.4.0",
+    "plug-socket": "*"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-es2015": "^6.9.0"
+  },
+  "scripts": {
+    "prepublish": "npm run babel",
+    "babel": "babel --presets es2015 --plugins add-module-exports --out-dir lib src"
   }
-, "main": "lib/vlc-player"
-, "bin": "bin/dizzay"
-, "dependencies":
-  { "commander": "2.x"
-  , "curry": "1.x"
-  , "data.task": "3.x"
-  , "debug": "2.x"
-  , "lodash.compose": "^2.4.1"
-  , "object-assign": "2.x"
-  , "pluck": "0.x"
-  , "plug-login": "^0.2.0"
-  , "plug-socket": "*" }
-, "devDependencies":
-  { "babel": "4.x" }
-, "scripts":
-  { "prepublish": "npm run babel"
-  , "babel": "./node_modules/.bin/babel --out-dir lib src" }
 }
