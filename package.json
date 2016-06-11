@@ -27,7 +27,7 @@
     "object-assign": "4.0.1",
     "pluck": "0.x",
     "plug-login": "^0.4.0",
-    "plug-socket": "*"
+    "plug-socket": "0.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.10.1",
