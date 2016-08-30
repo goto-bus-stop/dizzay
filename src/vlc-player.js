@@ -2,6 +2,8 @@ import cp from 'child_process'
 import assign from 'object-assign'
 import compose from 'lodash.compose'
 import curry from 'curry'
+import vlcCommand from 'vlc-command'
+import Task from 'data.task'
 
 import { getUrl } from './util'
 
@@ -12,6 +14,8 @@ const qualityPresets = {
 , MEDIUM: '43/18'
 , LOW: '36'
 }
+
+const getVlcCommand = () => new Task(vlcCommand)
 
 const getQuality = (presets, quality) => {
   return quality.toUpperCase() in presets? presets[quality.toUpperCase()]
@@ -50,13 +54,24 @@ const playMedia = curry(function (vlc, quality, startAt, media) {
 //
 export default function vlcPlayer(plug, { vlcParams = []
                                         , quality = qualityPresets.MEDIUM }) {
-  const vlc = cp.spawn('vlc', [ '--extraintf', 'rc', '--no-repeat', ...vlcParams ])
+  const oncommand = command => {
+    const vlc = cp.spawn(command, [ '--extraintf', 'rc', '--no-repeat', ...vlcParams ])
 
-  const play = playMedia(vlc, getQuality(qualityPresets, quality))
-  const stop = vlc.kill.bind(vlc, 'SIGTERM')
+    const play = playMedia(vlc, getQuality(qualityPresets, quality))
+    const stop = vlc.kill.bind(vlc, 'SIGTERM')
 
-  plug.on('advance', advance => play(0)(advance.m))
-  plug.on('roomState', state => play(0)(state.playback.media))
+    plug.on('advance', advance => play(0)(advance.m))
+    plug.on('roomState', state => play(0)(state.playback.media))
 
-  return { play: play(0), stop, vlc }
+    return {
+      play: play(0),
+      stop,
+      vlc
+    }
+  }
+
+  return getVlcCommand().fold(err => {
+    console.error('Could not find VLC')
+    return err
+  }, oncommand)
 }
