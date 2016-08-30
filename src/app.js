@@ -23,12 +23,17 @@ program
           'vlc-player')
   .option('-M, --list-modules',
           'show a list of available modules.')
+  .option('--mplayer-args <args>',
+          'string of space-separated command-line arguments to pass to mplayer.',
+          args => args.split(' '))
+  .option('--vlc-args <args>',
+          'string of space-separated command-line arguments to pass to vlc.',
+          args => args.split(' '))
   .parse(process.argv)
 
 main(program)
 
 function main(args) {
-
   if (args.listModules) {
     console.log('Available modules:')
     modules.forEach(console.log.bind(console, ' *'))

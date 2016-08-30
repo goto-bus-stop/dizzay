@@ -52,10 +52,9 @@ const playMedia = curry(function (vlc, quality, startAt, media) {
 // a `stop` method that stops playback and closes VLC, and a `vlc` property
 // referencing the VLC child process.
 //
-export default function vlcPlayer(plug, { vlcParams = []
-                                        , quality = qualityPresets.MEDIUM }) {
+export default function vlcPlayer(plug, { vlcArgs = [], quality = qualityPresets.MEDIUM }) {
   const oncommand = command => {
-    const vlc = cp.spawn(command, [ '--extraintf', 'rc', '--no-repeat', ...vlcParams ])
+    const vlc = cp.spawn(command, [ '--extraintf', 'rc', '--no-repeat', ...vlcArgs ])
 
     const play = playMedia(vlc, getQuality(qualityPresets, quality))
     const stop = vlc.kill.bind(vlc, 'SIGTERM')

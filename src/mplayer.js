@@ -25,7 +25,7 @@ export default function mplayer(plug) {
 
       // start mplayer after the response starts coming in, so it can detect
       // the type of media file instantly
-      let instance = spawn('mplayer', [ '-' ], { stdio: [ 'pipe', 'ignore', 'ignore' ] })
+      let instance = spawn('mplayer', [ ...mplayerArgs, '-' ], { stdio: [ 'pipe', 'ignore', 'ignore' ] })
       req.pipe(instance.stdin)
 
       instance.stop = () => {
