@@ -10,9 +10,12 @@ dizzay
     Options:
 
       -h, --help                 output usage information
+      -r, --room <room>          room url or slug to join.
       -q, --quality [quality]    video quality for YouTube videos. (low|medium|high) [medium]
       -m, --modules [modules]    modules to use, comma-separated. [vlc-player]
       -M, --list-modules         show a list of available modules.
+      --mplayer-args <args>      string of space-separated command-line arguments to pass to mplayer.
+      --vlc-args <args>          string of space-separated command-line arguments to pass to vlc.
 
 Available modules:
 
