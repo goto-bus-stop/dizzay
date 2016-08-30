@@ -3,6 +3,12 @@ dizzay
 
 `dizzay` (/ˈdɪːdʒeɪ/) plays media from a plug.dj room in VLC or Mplayer.
 
+## Installation
+
+```bash
+npm install --global dizzay
+```
+
 ## Usage
 
     dizzay [options] [room-name]
