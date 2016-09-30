@@ -15,23 +15,27 @@ const qualityPresets = {
 , LOW: '36'
 }
 
-const getVlcCommand = () => new Task(vlcCommand)
+const getVlcCommand = () => new Task((reject, resolve) =>
+  vlcCommand((err, res) => {
+    err ? reject(err) : resolve(res)
+  })
+)
 
 const getQuality = (presets, quality) => {
   return quality.toUpperCase() in presets? presets[quality.toUpperCase()]
        : /* _ */                           quality
 }
 
-const sendCommand = vlc => command => vlc.stdin.write(`${command}\n`)
-const enqueue = vlc => startAt => url => {
+const sendCommand = curry((vlc, command) => vlc.stdin.write(`${command}\n`))
+const enqueue = curry((vlc, startAt, url) => {
   debug('enqueue', url)
   const command = sendCommand(vlc)
   command(`add ${url}`)
   command(`next`)
   startAt > 0 && command(`seek ${startAt}`)
-}
+})
 
-const playMedia = curry(function (vlc, quality, startAt, media) {
+const playMedia = curry((vlc, quality, startAt, media) => {
   debug('playing', media)
   if (!media) return sendCommand(vlc, 'stop')
 
@@ -57,7 +61,7 @@ export default function vlcPlayer(plug, { vlcArgs = [], quality = qualityPresets
     const vlc = cp.spawn(command, [ '--extraintf', 'rc', '--no-repeat', ...vlcArgs ])
 
     const play = playMedia(vlc, getQuality(qualityPresets, quality))
-    const stop = vlc.kill.bind(vlc, 'SIGTERM')
+    const stop = () => vlc.kill('SIGTERM')
 
     plug.on('advance', advance => play(0)(advance.m))
     plug.on('roomState', state => play(0)(state.playback.media))
@@ -69,7 +73,7 @@ export default function vlcPlayer(plug, { vlcArgs = [], quality = qualityPresets
     }
   }
 
-  return getVlcCommand().fold(err => {
+  return getVlcCommand().fork(err => {
     console.error('Could not find VLC')
     return err
   }, oncommand)
