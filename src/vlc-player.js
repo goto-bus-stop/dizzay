@@ -39,8 +39,10 @@ const playMedia = curry((vlc, quality, startAt, media) => {
   debug('playing', media)
   if (!media) return sendCommand(vlc, 'stop')
 
-  getUrl(media, quality).fork(e => { throw e },
-                              enqueue(vlc)(startAt))
+  getUrl(media, quality).fork(
+    e => sendCommand(vlc, 'stop'),
+    enqueue(vlc)(startAt)
+  )
 })
 
 //
