@@ -51,22 +51,22 @@ function main(args) {
     if (e) throw e
     let user = args.user ? result.body.data[0] : {}
     let plug = socket(result.token)
-    plug.request = request.defaults({ jar: result.jar, json: true })
+    plug.request = request.defaults({
+      baseUrl: 'https://plug.dj/_/'
+    , jar: result.jar
+    , json: true
+    })
+
     plug.once('ack', () => {
       debug('connected')
       args.modules.split(',').forEach(m => {
         debug('load module', m)
         require(`./${m}`)(plug, args)
       })
-      plug.request.post(
-        'https://plug.dj/_/rooms/join'
-      , { body: { slug: args.room } }
-      , (e, _, body) => {
+      plug.request.post('/rooms/join', { body: { slug: args.room } }, (e, _, body) => {
         if (e) throw e
         debug('joined', args.room)
-        plug.request(
-          'https://plug.dj/_/rooms/state'
-        , (e, _, body) => {
+        plug.request('/rooms/state', (e, _, body) => {
           if (e) throw e
           plug.emit('roomState', body.data[0])
         })
