@@ -37,6 +37,7 @@
   },
   "scripts": {
     "prepublish": "npm run babel",
-    "babel": "babel --presets es2015 --plugins add-module-exports --out-dir lib src"
+    "babel": "babel --presets es2015 --plugins add-module-exports --out-dir lib src",
+    "test": "echo 'No test specified' && true"
   }
 }
