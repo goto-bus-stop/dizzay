@@ -26,7 +26,7 @@
     "lodash.compose": "^2.4.1",
     "object-assign": "4.0.1",
     "pluck": "0.x",
-    "plug-login": "^0.4.0",
+    "plug-login": "^1.0.0",
     "plug-socket": "0.1.1",
     "request": "^2.76.0"
   },
