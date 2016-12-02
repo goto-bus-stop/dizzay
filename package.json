@@ -27,7 +27,7 @@
     "object-assign": "4.0.1",
     "pluck": "0.x",
     "plug-login": "^0.4.0",
-    "plug-socket": "0.1.1",
+    "plug-socket": "0.2.0",
     "request": "^2.76.0"
   },
   "devDependencies": {
