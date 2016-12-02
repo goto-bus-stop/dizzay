@@ -12,7 +12,6 @@ const die = e => { throw e }
 // Plays YouTube and SoundCloud audio using mplayer.
 //
 export default function mplayer(plug, { mplayerArgs = [] }) {
-
   // horrible state
   let _instance
   const play = url => {
