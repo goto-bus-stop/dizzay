@@ -47,13 +47,16 @@ function main(args) {
 
   args.room = args.room.replace(/^https:\/\/plug\.dj\//, '')
 
-  const cb = (e, result) => {
-    if (e) throw e
-    let user = args.user ? result.body.data[0] : {}
-    let plug = socket(result.token)
+  const promise = args.user ? login.user(args.user, args.password, { authToken: true }) :
+    login.guest({ authToken: true })
+
+  promise.then((result) => {
+    const plug = socket(result.token)
+    const jar = request.jar()
+    jar.setCookie(result.cookie, 'https://plug.dj/')
     plug.request = request.defaults({
       baseUrl: 'https://plug.dj/_/'
-    , jar: result.jar
+    , jar: jar
     , json: true
     })
 
@@ -72,11 +75,11 @@ function main(args) {
         })
       })
     })
-  }
-
-  if (args.user) login(args.user, args.password, { authToken: true }, cb)
-  else           login.guest({ authToken: true }, cb)
-
+  }).catch((err) => {
+    console.error('Could not connect to plug.dj:')
+    console.error(err.stack)
+    process.exit(1)
+  })
 }
 
 function missingArgument(arg) {
