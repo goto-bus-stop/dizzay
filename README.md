@@ -1,7 +1,15 @@
 dizzay
 ======
 
-`dizzay` (/ˈdɪːdʒeɪ/) plays media from a plug.dj room in VLC or Mplayer.
+`dizzay` (/ˈdɪːdʒeɪ/) is a command-line program that plays media from a plug.dj
+room in VLC or in Mplayer.
+
+[Installation](#installation) -
+[Usage](#usage) -
+[Dependencies](#dependencies) -
+[License](#license)
+
+![VLC](./screens/vlc-player_and_now-playing.png)
 
 ## Installation
 
@@ -25,8 +33,9 @@ npm install --global dizzay
 
 Available modules:
 
- * `vlc-player` plays media in VLC (audio + video). Default.
- * `mplayer` plays media in mplayer (just audio).
+ * `vlc-player` plays media in a VLC window (audio + video). Default.
+ * `mplayer` plays media in mplayer. This only plays audio, and doesn't open a
+   new window.
  * `now-playing` prints a line with the current song title to stdout.
 
 Examples:
@@ -37,28 +46,21 @@ Examples:
 
 ## Dependencies
 
-You need youtube-dl and a supported media player in your path, which needs
-something like:
+You need youtube-dl and a supported media player in your `$PATH` to run Dizzay.
+On Linuxes, they can be installed through a command prompt using something like:
 
-```
-$ apt-get install vlc     # for vlc
-$ apt-get install mplayer # for mplayer
-$ pip install youtube_dl
-```
-
-Then clone the repo and build the code (ES6 → ES5 with [Babel](https://babeljs.io))
-
-```
-$ git clone https://github.com/goto-bus-stop/dizzay
-$ cd dizzay
-$ npm install
-$ npm run-script babel
+```bash
+apt-get install vlc     # for vlc
+apt-get install mplayer # for mplayer
+pip install youtube_dl
 ```
 
-Finally, run with
+## Building
 
-```
-$ ./bin/dizzay ROOM_NAME
+The build script uses Babel and can be invoked using:
+
+```bash
+npm run-script babel
 ```
 
 ## License
