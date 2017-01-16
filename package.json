@@ -24,7 +24,7 @@
     "data.task": "3.1.1",
     "debug": "2.x",
     "lodash.compose": "^2.4.1",
-    "object-assign": "4.1.0",
+    "object-assign": "4.1.1",
     "pluck": "0.x",
     "plug-login": "^1.0.0",
     "plug-socket": "0.3.0",
