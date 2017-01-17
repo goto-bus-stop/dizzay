@@ -29,6 +29,7 @@ const getQuality = (presets, quality) => {
 const sendCommand = curry((vlc, command) => vlc.stdin.write(`${command}\n`))
 const enqueue = curry((vlc, startAt, url) => {
   debug('enqueue', url)
+  debug('seek', startAt)
   const command = sendCommand(vlc)
   command(`add ${url}`)
   command(`next`)
@@ -40,10 +41,14 @@ const playMedia = curry((vlc, quality, startAt, media) => {
   if (!media) return sendCommand(vlc, 'stop')
 
   getUrl(media, quality).fork(
-    e => sendCommand(vlc, 'stop'),
+    (e) => sendCommand(vlc, 'stop'),
     enqueue(vlc)(startAt)
   )
 })
+
+const parsePlugDate = (str) => new Date(`${str} UTC`)
+
+const getSecondDiff = (start, end) => Math.round((end - start) / 1000)
 
 //
 // Plays YouTube videos and SoundCloud tracks in VLC.
@@ -59,14 +64,16 @@ const playMedia = curry((vlc, quality, startAt, media) => {
 // referencing the VLC child process.
 //
 export default function vlcPlayer(plug, { vlcArgs = [], quality = qualityPresets.MEDIUM }) {
-  const oncommand = command => {
+  const oncommand = (command) => {
     const vlc = cp.spawn(command, [ '--extraintf', 'rc', '--no-repeat', ...vlcArgs ])
 
     const play = playMedia(vlc, getQuality(qualityPresets, quality))
     const stop = () => vlc.kill('SIGTERM')
 
-    plug.on('advance', advance => play(0)(advance.m))
-    plug.on('roomState', state => play(0)(state.playback.media))
+    plug.on('advance', (advance) => play(0)(advance.m))
+    plug.on('roomState', (state) => play(
+      getSecondDiff(parsePlugDate(state.playback.startTime), Date.now())
+    )(state.playback.media))
 
     return {
       play: play(0),
@@ -75,7 +82,7 @@ export default function vlcPlayer(plug, { vlcArgs = [], quality = qualityPresets
     }
   }
 
-  return getVlcCommand().fork(err => {
+  return getVlcCommand().fork((err) => {
     console.error('Could not find VLC')
     return err
   }, oncommand)
