@@ -11,7 +11,7 @@ const die = e => { throw e }
 //
 // Plays YouTube and SoundCloud audio using mplayer.
 //
-export default function mplayer(plug, { mplayerArgs = [] }) {
+export default function mplayer(mp, { mplayerArgs = [] }) {
   // horrible state
   let _instance
   const play = url => {
@@ -41,6 +41,6 @@ export default function mplayer(plug, { mplayerArgs = [] }) {
   const next = media => media && media.cid? getUrl(media, 'bestaudio').fork(e => { throw e }, play)
                       : /* otherwise */     _instance && _instance.stop()
 
-  plug.on('advance',   compose(next, pluck('m')))
-  plug.on('roomState', compose(next, pluck('playback.media')))
+  mp.on('advance', compose(next, pluck('media')))
+  mp.on('roomState', compose(next, pluck('playback.media')))
 }

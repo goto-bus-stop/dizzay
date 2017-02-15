@@ -1,6 +1,4 @@
-import login from 'plug-login'
-import socket from 'plug-socket'
-import request from 'request'
+import miniplug from 'miniplug'
 import program from 'commander'
 
 const debug = require('debug')('dizzay:cli')
@@ -47,35 +45,13 @@ function main(args) {
 
   args.room = args.room.replace(/^https:\/\/plug\.dj\//, '')
 
-  const promise = args.user ? login.user(args.user, args.password, { authToken: true }) :
-    login.guest({ authToken: true })
+  const mp = miniplug(args.user ? { email: args.user, password: args.password } : {})
+  args.modules.split(',').forEach(m => {
+    debug('load module', m)
+    require(`./${m}`)(mp, args)
+  })
 
-  promise.then((result) => {
-    const plug = socket(result.token)
-    const jar = request.jar()
-    jar.setCookie(result.cookie, 'https://plug.dj/')
-    plug.request = request.defaults({
-      baseUrl: 'https://plug.dj/_/'
-    , jar: jar
-    , json: true
-    })
-
-    plug.once('ack', () => {
-      debug('connected')
-      args.modules.split(',').forEach(m => {
-        debug('load module', m)
-        require(`./${m}`)(plug, args)
-      })
-      plug.request.post('/rooms/join', { body: { slug: args.room } }, (e, _, body) => {
-        if (e) throw e
-        debug('joined', args.room)
-        plug.request('/rooms/state', (e, _, body) => {
-          if (e) throw e
-          plug.emit('roomState', body.data[0])
-        })
-      })
-    })
-  }).catch((err) => {
+  mp.join(args.room).catch((err) => {
     console.error('Could not connect to plug.dj:')
     console.error(err.stack)
     process.exit(1)
