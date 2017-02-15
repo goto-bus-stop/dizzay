@@ -1,5 +1,5 @@
-import { exec } from 'child_process'
-import Task from 'data.task'
+const { exec } = require('child_process')
+const Task = require('data.task')
 
 const debug = require('debug')('dizzay:util')
 
@@ -7,7 +7,7 @@ const debug = require('debug')('dizzay:util')
 const YOUTUBE    = 1
 const SOUNDCLOUD = 2
 
-export const getUrl = (media, quality = 'best') => new Task((reject, resolve) => {
+exports.getUrl = (media, quality = 'best') => new Task((reject, resolve) => {
   const url = media.format === YOUTUBE? `https://youtube.com/watch?v=${media.cid}`
             : /* format = SOUNDCLOUD */ `https://api.soundcloud.com/tracks/${media.cid}`
 
@@ -24,7 +24,7 @@ export const getUrl = (media, quality = 'best') => new Task((reject, resolve) =>
 })
 
 const pad = n => n < 10 ? `0${n}` : n
-export const time = () => {
+exports.time = () => {
   let now = new Date()
   return `${pad(now.getHours() + 1)}:${pad(now.getMinutes() + 1)}`
 }

@@ -1,8 +1,8 @@
-import { execSync as exec, spawn } from 'child_process'
-import { getUrl } from './util'
-import pluck from 'pluck'
-import request from 'request'
-import compose from 'lodash.compose'
+const { spawn } = require('child_process')
+const { getUrl } = require('./util')
+const pluck = require('pluck')
+const request = require('request')
+const compose = require('lodash.compose')
 
 const debug = require('debug')('dizzay:mplayer')
 
@@ -11,7 +11,7 @@ const die = e => { throw e }
 //
 // Plays YouTube and SoundCloud audio using mplayer.
 //
-export default function mplayer(mp, { mplayerArgs = [] }) {
+module.exports = function mplayer(mp, { mplayerArgs = [] }) {
   // horrible state
   let _instance
   const play = url => {

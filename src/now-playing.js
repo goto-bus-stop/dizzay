@@ -1,8 +1,8 @@
-import { time } from './util'
-import pluck from 'pluck'
-import compose from 'lodash.compose'
+const { time } = require('./util')
+const pluck = require('pluck')
+const compose = require('lodash.compose')
 
-export default function nowPlaying(mp) {
+module.exports = function nowPlaying(mp) {
   const title = media => media && media.cid? `${media.author} - ${media.title}`
                        : /* otherwise */     `Nothing`
   const printAdvance = media => console.log(`[${time()}] Now Playing: ${title(media)}`)

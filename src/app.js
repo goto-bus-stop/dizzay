@@ -1,5 +1,5 @@
-import miniplug from 'miniplug'
-import program from 'commander'
+const miniplug = require('miniplug')
+const program = require('commander')
 
 const debug = require('debug')('dizzay:cli')
 

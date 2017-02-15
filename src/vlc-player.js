@@ -1,11 +1,11 @@
-import cp from 'child_process'
-import assign from 'object-assign'
-import compose from 'lodash.compose'
-import curry from 'curry'
-import vlcCommand from 'vlc-command'
-import Task from 'data.task'
+const cp = require('child_process')
+const assign = require('object-assign')
+const compose = require('lodash.compose')
+const curry = require('curry')
+const vlcCommand = require('vlc-command')
+const Task = require('data.task')
 
-import { getUrl } from './util'
+const { getUrl } = require('./util')
 
 const debug = require('debug')('dizzay:vlc-player')
 
@@ -63,7 +63,7 @@ const getSecondDiff = (start, end) => Math.round((end - start) / 1000)
 // a `stop` method that stops playback and closes VLC, and a `vlc` property
 // referencing the VLC child process.
 //
-export default function vlcPlayer(mp, { vlcArgs = [], quality = qualityPresets.MEDIUM }) {
+module.exports = function vlcPlayer(mp, { vlcArgs = [], quality = qualityPresets.MEDIUM }) {
   const oncommand = (command) => {
     const vlc = cp.spawn(command, [ '--extraintf', 'rc', '--no-repeat', ...vlcArgs ])
 
