@@ -2,7 +2,7 @@ const { spawn } = require('child_process')
 const { getUrl } = require('./util')
 const pluck = require('pluck')
 const request = require('request')
-const compose = require('lodash.compose')
+const compose = require('compose-function')
 
 const debug = require('debug')('dizzay:mplayer')
 

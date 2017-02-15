@@ -1,6 +1,6 @@
 const { time } = require('./util')
 const pluck = require('pluck')
-const compose = require('lodash.compose')
+const compose = require('compose-function')
 
 module.exports = function nowPlaying(mp) {
   const title = media => media && media.cid? `${media.author} - ${media.title}`

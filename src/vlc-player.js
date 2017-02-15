@@ -1,6 +1,6 @@
 const cp = require('child_process')
 const assign = require('object-assign')
-const compose = require('lodash.compose')
+const compose = require('compose-function')
 const curry = require('curry')
 const vlcCommand = require('vlc-command')
 const Task = require('data.task')
