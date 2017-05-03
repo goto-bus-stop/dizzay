@@ -1,7 +1,6 @@
 const { spawn } = require('child_process')
 const { getUrl } = require('./util')
 const pluck = require('pluck')
-const request = require('request')
 const compose = require('compose-function')
 
 const debug = require('debug')('dizzay:mplayer')
@@ -16,26 +15,17 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
     if (_instance) _instance.stop()
 
     debug('play', `${url}`)
+    debug('starting playback')
 
-    let req = request(url).on('response', () => {
-      debug('starting playback')
+    // start mplayer after the response starts coming in, so it can detect
+    // the type of media file instantly
+    let instance = spawn(mplayerCommand,
+      [ ...mplayerArgs,   url ],
+      { stdio: [ 'pipe', 'ignore', 'ignore' ] })
 
-      // start mplayer after the response starts coming in, so it can detect
-      // the type of media file instantly
-      let instance = spawn(mplayerCommand, [ ...mplayerArgs, '-' ], { stdio: [ 'pipe', 'ignore', 'ignore' ] })
-      req.pipe(instance.stdin)
-
-      instance.stop = () => {
-        // kill mplayer _after_ the request is aborted, to prevent write-after-
-        // close on mplayer's stdin
-        req.abort()
-        req.on('end', () => {
-          instance.kill('SIGTERM')
-        })
-      }
-
-      _instance = instance
-    })
+    instance.stop = () => {
+      instance.kill('SIGTERM')
+    }
   }
 
   const next = media => media && media.cid
