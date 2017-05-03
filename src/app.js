@@ -48,7 +48,11 @@ function main(args) {
   const mp = miniplug(args.user ? { email: args.user, password: args.password } : {})
   args.modules.split(',').forEach(m => {
     debug('load module', m)
-    require(`./${m}`)(mp, args)
+    require(`./${m}`)(mp, args, (err) => {
+      if (!err) {
+        debug('loaded module', m)
+      }
+    })
   })
 
   mp.join(args.room).catch((err) => {

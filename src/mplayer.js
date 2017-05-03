@@ -6,8 +6,6 @@ const compose = require('compose-function')
 
 const debug = require('debug')('dizzay:mplayer')
 
-const die = e => { throw e }
-
 //
 // Plays YouTube and SoundCloud audio using mplayer.
 //
@@ -31,15 +29,21 @@ module.exports = function mplayer(mp, { mplayerArgs = [] }) {
         // kill mplayer _after_ the request is aborted, to prevent write-after-
         // close on mplayer's stdin
         req.abort()
-        req.on('end', () => { instance.kill('SIGTERM') })
+        req.on('end', () => {
+          instance.kill('SIGTERM')
+        })
       }
 
       _instance = instance
     })
   }
 
-  const next = media => media && media.cid? getUrl(media, 'bestaudio').fork(e => { throw e }, play)
-                      : /* otherwise */     _instance && _instance.stop()
+  const next = media => media && media.cid
+    ? getUrl(media, 'bestaudio', (err, url) => {
+        if (err) throw err;
+        play(url);
+      })
+    : _instance && _instance.stop();
 
   mp.on('advance', compose(next, pluck('media')))
   mp.on('roomState', compose(next, pluck('playback.media')))

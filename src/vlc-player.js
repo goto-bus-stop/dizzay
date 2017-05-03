@@ -3,8 +3,6 @@ const assign = require('object-assign')
 const compose = require('compose-function')
 const curry = require('curry')
 const vlcCommand = require('vlc-command')
-const Task = require('data.task')
-
 const { getUrl } = require('./util')
 
 const debug = require('debug')('dizzay:vlc-player')
@@ -15,15 +13,10 @@ const qualityPresets = {
 , LOW: '36'
 }
 
-const getVlcCommand = () => new Task((reject, resolve) =>
-  vlcCommand((err, res) => {
-    err ? reject(err) : resolve(res)
-  })
-)
-
 const getQuality = (presets, quality) => {
-  return quality.toUpperCase() in presets? presets[quality.toUpperCase()]
-       : /* _ */                           quality
+  return quality.toUpperCase() in presets
+    ? presets[quality.toUpperCase()]
+    : quality
 }
 
 const sendCommand = curry((vlc, command) => vlc.stdin.write(`${command}\n`))
@@ -40,10 +33,13 @@ const playMedia = curry((vlc, quality, startAt, media) => {
   debug('playing', media)
   if (!media) return sendCommand(vlc, 'stop')
 
-  getUrl(media, quality).fork(
-    (e) => sendCommand(vlc, 'stop'),
-    enqueue(vlc)(startAt)
-  )
+  getUrl(media, quality, (err) => {
+    if (err) {
+      sendCommand(vlc, 'stop')
+    } else {
+      enqueue(vlc)(startAt)
+    }
+  })
 })
 
 const parsePlugDate = (str) => new Date(`${str} UTC`)
@@ -63,7 +59,7 @@ const getSecondDiff = (start, end) => Math.round((end - start) / 1000)
 // a `stop` method that stops playback and closes VLC, and a `vlc` property
 // referencing the VLC child process.
 //
-module.exports = function vlcPlayer(mp, { vlcArgs = [], quality = qualityPresets.MEDIUM }) {
+module.exports = function vlcPlayer(mp, { vlcArgs = [], quality = qualityPresets.MEDIUM }, cb) {
   const oncommand = (command) => {
     const vlc = cp.spawn(command, [ '--extraintf', 'rc', '--no-repeat', ...vlcArgs ])
 
@@ -82,8 +78,11 @@ module.exports = function vlcPlayer(mp, { vlcArgs = [], quality = qualityPresets
     }
   }
 
-  return getVlcCommand().fork((err) => {
-    console.error('Could not find VLC')
-    return err
-  }, oncommand)
+  return vlcCommand((err, command) => {
+    if (err) {
+      console.error('Could not find VLC')
+      return cb(err);
+    }
+    oncommand(command, cb);
+  });
 }
