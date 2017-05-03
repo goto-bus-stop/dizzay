@@ -21,6 +21,8 @@ program
           'vlc-player')
   .option('-M, --list-modules',
           'show a list of available modules.')
+  .option('--mplayer <cmd>',
+          'path to the mplayer binary to use. [mplayer]')
   .option('--mplayer-args <args>',
           'string of space-separated command-line arguments to pass to mplayer.',
           args => args.split(' '))

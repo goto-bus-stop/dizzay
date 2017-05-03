@@ -9,7 +9,7 @@ const debug = require('debug')('dizzay:mplayer')
 //
 // Plays YouTube and SoundCloud audio using mplayer.
 //
-module.exports = function mplayer(mp, { mplayerArgs = [] }) {
+module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerCommand = 'mplayer' }) {
   // horrible state
   let _instance
   const play = url => {
@@ -22,7 +22,7 @@ module.exports = function mplayer(mp, { mplayerArgs = [] }) {
 
       // start mplayer after the response starts coming in, so it can detect
       // the type of media file instantly
-      let instance = spawn('mplayer', [ ...mplayerArgs, '-' ], { stdio: [ 'pipe', 'ignore', 'ignore' ] })
+      let instance = spawn(mplayerCommand, [ ...mplayerArgs, '-' ], { stdio: [ 'pipe', 'ignore', 'ignore' ] })
       req.pipe(instance.stdin)
 
       instance.stop = () => {
