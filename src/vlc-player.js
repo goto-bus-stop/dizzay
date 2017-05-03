@@ -1,6 +1,5 @@
 const cp = require('child_process')
 const assign = require('object-assign')
-const compose = require('compose-function')
 const curry = require('curry')
 const vlcCommand = require('vlc-command')
 const { getUrl } = require('./util')

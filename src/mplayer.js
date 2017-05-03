@@ -1,7 +1,5 @@
 const { spawn } = require('child_process')
 const { getUrl } = require('./util')
-const pluck = require('pluck')
-const compose = require('compose-function')
 const urlparse = require('url').parse
 const urlformat = require('url').format
 const httpProxy = require('http-proxy')
@@ -64,7 +62,9 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
       })
     : close();
 
-  mp.on('advance', compose(next, pluck('media')))
+  mp.on('advance', (advance) => {
+    next(advance.media)
+  })
   mp.on('roomState', (state) => {
     next(state.playback.media, new Date(`${state.playback.startTime} UTC`).getTime())
   })
