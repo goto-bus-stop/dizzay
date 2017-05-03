@@ -29,7 +29,7 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
     if (proxy) proxy.close()
   }
 
-  const play = url => {
+  const play = (url, startTime = Date.now()) => {
     close()
     debug('play', `${mplayerCommand} ${mplayerArgs.join(' ')} ${url}`)
 
@@ -42,17 +42,30 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
     debug('proxy listening on', urlformat(listening))
 
     instance = spawn(mplayerCommand,
-      [ ...mplayerArgs, urlformat(listening) ],
-      { stdio: [ 'pipe', 'inherit', 'inherit' ] })
+      [ ...mplayerArgs, '-slave', urlformat(listening) ],
+      { stdio: ['pipe', 'pipe', 'inherit'] })
+
+    instance.stdout.on('data', (chunk) => {
+      if (chunk.toString().includes('Starting playback')) {
+        seek((Date.now() - startTime) / 1000)
+      }
+    })
+
+    function seek(time) {
+      debug('seek', time)
+      instance.stdin.write(`seek ${Math.floor(time)} 2\n`)
+   }
   }
 
-  const next = media => media && media.cid
+  const next = (media, startTime) => media && media.cid
     ? getUrl(media, 'bestaudio', (err, url) => {
         if (err) throw err;
-        play(url);
+        play(url, startTime);
       })
     : close();
 
   mp.on('advance', compose(next, pluck('media')))
-  mp.on('roomState', compose(next, pluck('playback.media')))
+  mp.on('roomState', (state) => {
+    next(state.playback.media, new Date(`${state.playback.startTime} UTC`).getTime())
+  })
 }
