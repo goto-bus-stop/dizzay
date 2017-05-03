@@ -2,30 +2,48 @@ const { spawn } = require('child_process')
 const { getUrl } = require('./util')
 const pluck = require('pluck')
 const compose = require('compose-function')
-
+const urlparse = require('url').parse
+const urlformat = require('url').format
+const httpProxy = require('http-proxy')
 const debug = require('debug')('dizzay:mplayer')
+
+function proxyServer(remote) {
+  debug('proxy to', remote)
+  const proxy = httpProxy.createServer({
+    target: remote,
+    changeOrigin: true
+  })
+  proxy.listen()
+  return proxy
+}
 
 //
 // Plays YouTube and SoundCloud audio using mplayer.
 //
 module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerCommand = 'mplayer' }) {
-  // horrible state
-  let _instance
+  let instance
+  let proxy
+
+  const close = () => {
+    if (instance) instance.kill('SIGTERM')
+    if (proxy) proxy.close()
+  }
+
   const play = url => {
-    if (_instance) _instance.stop()
+    close()
+    debug('play', `${mplayerCommand} ${mplayerArgs.join(' ')} ${url}`)
 
-    debug('play', `${url}`)
-    debug('starting playback')
+    const parts = urlparse(url)
+    proxy = proxyServer(`https://${parts.host}`)
+    const listening = Object.assign({}, parts, {
+      protocol: 'http:',
+      host: `localhost:${proxy._server.address().port}`
+    })
+    debug('proxy listening on', urlformat(listening))
 
-    // start mplayer after the response starts coming in, so it can detect
-    // the type of media file instantly
-    let instance = spawn(mplayerCommand,
-      [ ...mplayerArgs,   url ],
-      { stdio: [ 'pipe', 'ignore', 'ignore' ] })
-
-    instance.stop = () => {
-      instance.kill('SIGTERM')
-    }
+    instance = spawn(mplayerCommand,
+      [ ...mplayerArgs, urlformat(listening) ],
+      { stdio: [ 'pipe', 'inherit', 'inherit' ] })
   }
 
   const next = media => media && media.cid
@@ -33,7 +51,7 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
         if (err) throw err;
         play(url);
       })
-    : _instance && _instance.stop();
+    : close();
 
   mp.on('advance', compose(next, pluck('media')))
   mp.on('roomState', compose(next, pluck('playback.media')))
