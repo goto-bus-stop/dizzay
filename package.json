@@ -27,7 +27,8 @@
     "miniplug": "^1.3.3",
     "object-assign": "^4.1.0",
     "pluck": "0.0.4",
-    "vlc-command": "^1.1.1"
+    "vlc-command": "^1.1.1",
+    "ytdl-core": "^0.13.2"
   },
   "devDependencies": {
     "buble": "^0.15.2"
