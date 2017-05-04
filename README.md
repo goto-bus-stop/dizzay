@@ -58,10 +58,10 @@ apt-get install mplayer # for mplayer
 
 ## Building
 
-The build script uses Babel and can be invoked using:
+The source code is written in ES6 and can be compiled using:
 
 ```bash
-npm run-script babel
+npm run build
 ```
 
 ## License
