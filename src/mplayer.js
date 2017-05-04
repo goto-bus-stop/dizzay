@@ -1,18 +1,32 @@
 const { spawn } = require('child_process')
 const { getUrl } = require('./util')
 const urlparse = require('url').parse
-const urlformat = require('url').format
+const http = require('http')
 const httpProxy = require('http-proxy')
 const debug = require('debug')('dizzay:mplayer')
 
-function proxyServer(remote) {
-  debug('proxy to', remote)
+function proxyServer() {
   const proxy = httpProxy.createServer({
-    target: remote,
-    changeOrigin: true
+    changeOrigin: true,
+    hostRewrite: true,
+    autoRewrite: true,
+    protocolRewrite: true
   })
-  proxy.listen()
-  return proxy
+
+  proxy.on('proxyRes', (res) => {
+    if (res.headers.status && res.headers.status.startsWith('302')) {
+      debug('rewriting redirect', res.headers.location)
+      res.headers.location =
+        `http://localhost:${server.address().port}/${res.headers.location}`
+    }
+  })
+
+  const server = http.createServer((req, res) => {
+    const url = urlparse(req.url.slice(1))
+    req.url = url.path
+    proxy.web(req, res, { target: `${url.protocol}//${url.host}` })
+  }).on('close', proxy.close.bind(proxy))
+  return server.listen()
 }
 
 //
@@ -32,15 +46,12 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
     debug('play', `${mplayerCommand} ${mplayerArgs.join(' ')} ${url}`)
 
     const parts = urlparse(url)
-    proxy = proxyServer(`https://${parts.host}`)
-    const listening = Object.assign({}, parts, {
-      protocol: 'http:',
-      host: `localhost:${proxy._server.address().port}`
-    })
-    debug('proxy listening on', urlformat(listening))
+    proxy = proxyServer()
+    const listening = `http://localhost:${proxy.address().port}`
+    debug('proxy listening on', listening)
 
     instance = spawn(mplayerCommand,
-      [ ...mplayerArgs, '-slave', urlformat(listening) ],
+      [ ...mplayerArgs, '-slave', `${listening}/${url}` ],
       { stdio: ['pipe', 'pipe', 'inherit'] })
 
     instance.stdout.on('data', (chunk) => {

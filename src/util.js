@@ -1,6 +1,8 @@
-const { exec } = require('child_process')
 const ytdl = require('ytdl-core')
+const jsonist = require('jsonist')
 const debug = require('debug')('dizzay:util')
+
+const SC_CLIENT_ID = '8dbdba91e179312af5051f713fc88176'
 
 // media source IDs
 const YOUTUBE    = 1
@@ -24,6 +26,16 @@ function getYtUrl(url, { audioOnly, quality }, cb) {
   })
 }
 
+const SC_RESOLVE = 'https://api.soundcloud.com/resolve.json'
+function getScUrl(url, cb) {
+  jsonist.get(`${SC_RESOLVE}?client_id=${SC_CLIENT_ID}&url=${encodeURIComponent(url)}`, {
+    followRedirects: true
+  }, (err, data) => {
+    if (err) return cb(err)
+    cb(null, `${data.stream_url}?client_id=${SC_CLIENT_ID}`)
+  })
+}
+
 exports.getUrl = function getUrl(media, quality = 'best', cb) {
   const url = media.format === YOUTUBE
     ? `https://youtube.com/watch?v=${media.cid}`
@@ -32,18 +44,13 @@ exports.getUrl = function getUrl(media, quality = 'best', cb) {
   debug('get-url', url)
 
   if (media.format === YOUTUBE) {
-    return getYtUrl(url, {
+    getYtUrl(url, {
       audioOnly: quality.includes('audio'),
       quality: quality
     }, cb)
+  } else {
+    getScUrl(url, cb)
   }
-
-  // TODO use soundcloud API for this one
-  exec(`youtube-dl --get-url ${url}`, (err, stdout, stderr) => {
-    debug('get-url result', `${stdout}`)
-    if (err) return cb(err)
-    cb(null, `${stdout}`)
-  })
 }
 
 const pad = n => n < 10 ? `0${n}` : n
