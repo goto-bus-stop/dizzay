@@ -29,6 +29,7 @@ npm install --global dizzay
       -p, --password [password]  password of your plug.dj account. (optional, for login)
       -r, --room <room>          room url or slug to join.
       -q, --quality [quality]    video quality for YouTube videos. (low|medium|high) [medium]
+      -a, --audio-only           do not show videos.
       --vlc                      play songs in vlc.
       --mplayer                  play songs in mplayer.
       --now-playing              log the current playing song to standard output.

@@ -6,18 +6,6 @@ const { getUrl } = require('./util')
 
 const debug = require('debug')('dizzay:vlc-player')
 
-const qualityPresets = {
-  HIGH: '247+172/22'
-, MEDIUM: '43/18'
-, LOW: '36'
-}
-
-const getQuality = (presets, quality) => {
-  return quality.toUpperCase() in presets
-    ? presets[quality.toUpperCase()]
-    : quality
-}
-
 const sendCommand = curry((vlc, command) => vlc.stdin.write(`${command}\n`))
 const enqueue = curry((vlc, startAt, url) => {
   debug('enqueue', url)
@@ -58,11 +46,11 @@ const getSecondDiff = (start, end) => Math.round((end - start) / 1000)
 // a `stop` method that stops playback and closes VLC, and a `vlc` property
 // referencing the VLC child process.
 //
-module.exports = function vlcPlayer(mp, { vlcArgs = [], quality = qualityPresets.MEDIUM }, cb) {
+module.exports = function vlcPlayer(mp, { vlcArgs = [], quality }, cb) {
   const oncommand = (command) => {
     const vlc = cp.spawn(command, [ '--extraintf', 'rc', '--no-repeat', ...vlcArgs ])
 
-    const play = playMedia(vlc, getQuality(qualityPresets, quality))
+    const play = playMedia(vlc, quality)
     const stop = () => vlc.kill('SIGTERM')
 
     mp.on('advance', (next) => play(0)(next.media))

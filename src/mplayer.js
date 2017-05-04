@@ -32,7 +32,7 @@ function proxyServer() {
 //
 // Plays YouTube and SoundCloud audio using mplayer.
 //
-module.exports = function mplayer(mp, { mplayerArgs = [] }) {
+module.exports = function mplayer(mp, { quality, mplayerArgs = [] }) {
   let instance
   let proxy
 
@@ -78,7 +78,7 @@ module.exports = function mplayer(mp, { mplayerArgs = [] }) {
   }
 
   const next = (media, startTime) => media && media.cid
-    ? getUrl(media, 'bestaudio', (err, url) => {
+    ? getUrl(media, quality, (err, url) => {
         if (err) {
           console.error('mplayer:', err.message);
           return stop();

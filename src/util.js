@@ -45,7 +45,7 @@ exports.getUrl = function getUrl(media, quality = 'best', cb) {
 
   if (media.format === YOUTUBE) {
     getYtUrl(url, {
-      audioOnly: quality.includes('audio'),
+      audioOnly: quality === 'audio',
       quality: quality
     }, cb)
   } else {

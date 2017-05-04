@@ -16,6 +16,8 @@ program
   .option('-q, --quality [quality]',
           'video quality for YouTube videos. (low|medium|high) [medium]',
           'medium')
+  .option('-a, --audio-only',
+          'do not show videos.')
   .option('--vlc',
           'play songs in vlc.')
   .option('--mplayer',
@@ -41,6 +43,10 @@ function main(args) {
   if (!args.room) {
     if (args.args.length) args.room = args.args[0]
     else return missingArgument('--room')
+  }
+
+  if (args.audioOnly) {
+    args.quality = 'audio'
   }
 
   args.room = args.room.replace(/^https:\/\/plug\.dj\//, '')
