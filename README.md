@@ -46,13 +46,14 @@ Examples:
 
 ## Dependencies
 
-You need youtube-dl and a supported media player in your `$PATH` to run Dizzay.
+You need a supported media player in your `$PATH` to run Dizzay.
 On Linuxes, they can be installed through a command prompt using something like:
 
 ```bash
+# apt-get on Debians/Ubuntus,
+# but it should be similar for other distributions
 apt-get install vlc     # for vlc
 apt-get install mplayer # for mplayer
-pip install youtube_dl
 ```
 
 ## Building
