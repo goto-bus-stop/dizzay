@@ -32,12 +32,12 @@ function proxyServer() {
 //
 // Plays YouTube and SoundCloud audio using mplayer.
 //
-module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerCommand = 'mplayer' }) {
+module.exports = function mplayer(mp, { mplayerArgs = [] }) {
   let instance
   let proxy
 
   const start = (cb) => {
-    instance = spawn(mplayerCommand, [ ...mplayerArgs, '-idle', '-slave' ])
+    instance = spawn('mplayer', [ ...mplayerArgs, '-idle', '-slave' ])
     instance.stdout.on('data', function ondata (chunk) {
       if (chunk.toString().includes('MPlayer')) {
         cb(null)

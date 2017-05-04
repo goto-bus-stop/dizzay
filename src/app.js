@@ -16,13 +16,12 @@ program
   .option('-q, --quality [quality]',
           'video quality for YouTube videos. (low|medium|high) [medium]',
           'medium')
-  .option('-m, --modules [modules]',
-          'modules to use, comma-separated. [vlc-player]',
-          'vlc-player')
-  .option('-M, --list-modules',
-          'show a list of available modules.')
-  .option('--mplayer <cmd>',
-          'path to the mplayer binary to use. [mplayer]')
+  .option('--vlc',
+          'play songs in vlc.')
+  .option('--mplayer',
+          'play songs in mplayer.')
+  .option('--now-playing',
+          'log the current playing song to standard output.')
   .option('--mplayer-args <args>',
           'string of space-separated command-line arguments to pass to mplayer.',
           args => args.split(' '))
@@ -34,10 +33,9 @@ program
 main(program)
 
 function main(args) {
-  if (args.listModules) {
-    console.log('Available modules:')
-    modules.forEach(console.log.bind(console, ' *'))
-    return
+  if (args.vlc === undefined && args.mplayer === undefined) {
+    debug('no player argument given, using vlc')
+    args.vlc = true
   }
 
   if (!args.room) {
@@ -48,14 +46,15 @@ function main(args) {
   args.room = args.room.replace(/^https:\/\/plug\.dj\//, '')
 
   const mp = miniplug(args.user ? { email: args.user, password: args.password } : {})
-  args.modules.split(',').forEach(m => {
-    debug('load module', m)
-    require(`./${m}`)(mp, args, (err) => {
-      if (!err) {
-        debug('loaded module', m)
-      }
-    })
-  })
+  if (args.vlc) {
+    require('./vlc-player')(mp, args)
+  }
+  if (args.mplayer) {
+    require('./mplayer')(mp, args)
+  }
+  if (args.nowPlaying) {
+    require('./now-playing')(mp, args)
+  }
 
   mp.join(args.room).catch((err) => {
     console.error('Could not connect to plug.dj:')

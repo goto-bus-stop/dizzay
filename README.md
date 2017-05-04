@@ -1,8 +1,7 @@
 dizzay
 ======
 
-`dizzay` (/ˈdɪːdʒeɪ/) is a command-line program that plays media from a plug.dj
-room in VLC or in Mplayer.
+`dizzay` (/ˈdɪːdʒeɪ/) is a command-line program that plays media from a plug.dj room in VLC or in Mplayer.
 
 [Installation](#installation) -
 [Usage](#usage) -
@@ -19,30 +18,31 @@ npm install --global dizzay
 
 ## Usage
 
-    dizzay [options] [room-name]
+    dizzay [options]
+
+    play music from a plug.dj room in VLC
 
     Options:
 
       -h, --help                 output usage information
+      -u, --user [email]         email address of your plug.dj account. (optional, for login)
+      -p, --password [password]  password of your plug.dj account. (optional, for login)
       -r, --room <room>          room url or slug to join.
       -q, --quality [quality]    video quality for YouTube videos. (low|medium|high) [medium]
-      -m, --modules [modules]    modules to use, comma-separated. [vlc-player]
-      -M, --list-modules         show a list of available modules.
+      --vlc                      play songs in vlc.
+      --mplayer                  play songs in mplayer.
+      --now-playing              log the current playing song to standard output.
       --mplayer-args <args>      string of space-separated command-line arguments to pass to mplayer.
       --vlc-args <args>          string of space-separated command-line arguments to pass to vlc.
 
-Available modules:
-
- * `vlc-player` plays media in a VLC window (audio + video). Default.
- * `mplayer` plays media in mplayer. This only plays audio, and doesn't open a
-   new window.
- * `now-playing` prints a line with the current song title to stdout.
+The `--vlc` and `--mplayer` flags determine which media player to use.
+If neither flags are given, VLC is used.
 
 Examples:
 
- * `dizzay -m mplayer,now-playing tastycat`
- * `dizzay -m vlc-player mrsuicidesheep-chillout`
- * `dizzay -m now-playing,vlc-player loves-kpop`
+ * `dizzay --mplayer --now-playing tastycat`
+ * `dizzay --vlc mrsuicidesheep-chillout`
+ * `dizzay --now-playing --vlc loves-kpop`
 
 ## Dependencies
 
