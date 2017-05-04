@@ -1,8 +1,18 @@
 const cp = require('child_process')
 const vlcCommand = require('vlc-command')
+const runSeries = require('run-series')
+const net = require('net')
+const concat = require('concat-stream')
 const { getUrl } = require('./util')
 
 const debug = require('debug')('dizzay:vlc-player')
+
+function findPort() {
+  const server = net.createServer().listen()
+  const { port } = server.address()
+  server.close()
+  return port
+}
 
 const parsePlugDate = (str) => new Date(`${str} UTC`)
 
@@ -23,15 +33,25 @@ const getSecondDiff = (start, end) => Math.round((end - start) / 1000)
 //
 module.exports = function vlcPlayer(mp, { vlcArgs = [], quality }, cb) {
   let vlc
+  let port
   const start = (cb) => {
     vlcCommand((err, command) => {
       if (err) return cb(err)
+      port = findPort()
       vlc = cp.spawn(command, [
         '--extraintf', 'rc',
         '--no-repeat',
+        '--rc-host', `localhost:${port}`,
         ...vlcArgs
       ])
-      cb(null)
+
+      function waitForVlc() {
+        cmd('info', (err) => {
+          if (err) setTimeout(waitForVlc, 100)
+          else cb(null)
+        })
+      }
+      waitForVlc()
     })
   }
   const close = () => {
@@ -39,8 +59,45 @@ module.exports = function vlcPlayer(mp, { vlcArgs = [], quality }, cb) {
     vlc.kill('SIGTERM')
   }
 
+  /**
+   * Wait for stream info to be available.
+   */
+  function getStreamInfo(cb) {
+    tryInfo()
+
+    function tryInfo() {
+      cmd('info', (err, response) => {
+        if (!err && response.toString().includes('--[ Stream')) {
+          return cb(null, response.toString().trim())
+        }
+        if (err) cb(err)
+        else setTimeout(tryInfo, 100)
+      })
+    }
+  }
+
+  /**
+   * Send a command to vlc using the remote control api.
+   * Last arg is a callback that receives an error and the api response text.
+   */
+  const cmd = (...args) => {
+    const cb = args.pop()
+    debug('cmd', ...args)
+    const sock = net.connect({ host: 'localhost', port }, () => {
+      sock.setNoDelay()
+
+      sock.pipe(concat((response) => {
+        debug('response', response.toString())
+        cb(null, response.toString())
+      }))
+
+      sock.end(args.join(' ') + '\r\n')
+    })
+    sock.on('error', cb)
+  }
+
   const stop = () => {
-    vlc.stdin.write('stop\n')
+    cmd('stop', () => {})
   }
 
   const next = (media, startTime) => {
@@ -55,10 +112,15 @@ module.exports = function vlcPlayer(mp, { vlcArgs = [], quality }, cb) {
 
       const startAt = startTime ? getSecondDiff(parsePlugDate(startTime), Date.now()) : 0
       debug('enqueue', url)
-      debug('seek', startAt)
-      vlc.stdin.write(`add ${url}\n`)
-      vlc.stdin.write(`next\n`)
-      if (startAt > 0) vlc.stdin.write(`seek ${startAt}\n`)
+      runSeries([
+        cb => cmd('clear', cb),
+        cb => cmd('add', url, cb),
+        cb => cmd('next', cb),
+        getStreamInfo
+      ], () => {
+        debug('seek', startAt)
+        if (startAt > 0) cmd('seek', startAt, () => {})
+      })
     })
   }
 
