@@ -65,6 +65,10 @@ function main(args) {
     console.error(err.stack)
     process.exit(1)
   })
+
+  process.on('beforeExit', () => {
+    mp.emit('close')
+  })
 }
 
 function missingArgument(arg) {
