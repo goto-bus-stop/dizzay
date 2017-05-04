@@ -36,27 +36,34 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
   let instance
   let proxy
 
+  const start = (cb) => {
+    instance = spawn(mplayerCommand, [ ...mplayerArgs, '-idle', '-slave' ])
+    instance.stdout.on('data', function ondata (chunk) {
+      if (chunk.toString().includes('MPlayer')) {
+        cb(null)
+        instance.stdout.removeListener('data', ondata)
+      }
+    })
+    proxy = proxyServer()
+    debug('proxy listening on', proxify(''))
+  }
+
   const close = () => {
     if (instance) instance.kill('SIGTERM')
     if (proxy) proxy.close()
   }
 
+  const proxify = (url) => `http://localhost:${proxy.address().port}/${url}`
+
   const play = (url, startTime = Date.now()) => {
-    close()
-    debug('play', `${mplayerCommand} ${mplayerArgs.join(' ')} ${url}`)
+    stop()
 
-    const parts = urlparse(url)
-    proxy = proxyServer()
-    const listening = `http://localhost:${proxy.address().port}`
-    debug('proxy listening on', listening)
-
-    instance = spawn(mplayerCommand,
-      [ ...mplayerArgs, '-slave', `${listening}/${url}` ],
-      { stdio: ['pipe', 'pipe', 'inherit'] })
-
-    instance.stdout.on('data', (chunk) => {
+    debug('play', url)
+    instance.stdin.write(`loadfile ${JSON.stringify(proxify(url))}\n`)
+    instance.stdout.on('data', function ondata (chunk) {
       if (chunk.toString().includes('Starting playback')) {
         seek((Date.now() - startTime) / 1000)
+        instance.stdout.removeListener('data', ondata)
       }
     })
 
@@ -64,6 +71,10 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
       debug('seek', time)
       instance.stdin.write(`seek ${Math.floor(time)} 2\n`)
    }
+  }
+
+  const stop = () => {
+    instance.stdin.write('stop\n')
   }
 
   const next = (media, startTime) => media && media.cid
@@ -77,6 +88,9 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
     next(advance.media)
   })
   mp.on('roomState', (state) => {
-    next(state.playback.media, new Date(`${state.playback.startTime} UTC`).getTime())
+    start(() => {
+      next(state.playback.media, new Date(`${state.playback.startTime} UTC`).getTime())
+    })
   })
+  mp.on('close', close)
 }
