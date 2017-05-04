@@ -6,7 +6,7 @@ module.exports = function nowPlaying(mp) {
   const printAdvance = media => console.log(`[${time()}] Now Playing: ${title(media)}`)
 
   mp.on('advance', (advance) => {
-    printAdvance(advance.media)
+    printAdvance(advance && advance.media)
   })
   mp.on('roomState', (state) => {
     printAdvance(state.playback.media)

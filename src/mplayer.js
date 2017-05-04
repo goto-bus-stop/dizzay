@@ -85,10 +85,10 @@ module.exports = function mplayer(mp, { mplayerArgs = [] }) {
         }
         play(url, startTime);
       })
-    : close();
+    : stop();
 
   mp.on('advance', (advance) => {
-    next(advance.media)
+    next(advance && advance.media)
   })
   mp.on('roomState', (state) => {
     start(() => {
