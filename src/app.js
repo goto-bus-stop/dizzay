@@ -22,6 +22,8 @@ program
           'play songs in mplayer.')
   .option('--now-playing',
           'log the current playing song to standard output.')
+  .option('--chat-log',
+          'log chat messages to standard output.')
   .option('--mplayer-args <args>',
           'string of space-separated command-line arguments to pass to mplayer.',
           args => args.split(' '))
@@ -58,6 +60,9 @@ function main(args) {
   }
   if (args.nowPlaying) {
     require('./now-playing')(mp, args)
+  }
+  if (args.chatLog) {
+    require('./chat-log')(mp, args)
   }
 
   mp.join(args.room).catch((err) => {
