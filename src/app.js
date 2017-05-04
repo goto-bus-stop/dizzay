@@ -3,8 +3,6 @@ const program = require('commander')
 
 const debug = require('debug')('dizzay:cli')
 
-const modules = [ 'vlc-player', 'now-playing', 'mplayer' ]
-
 program
   .description('play music from a plug.dj room in VLC')
   .option('-u, --user [email]',

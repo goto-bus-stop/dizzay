@@ -1,33 +1,8 @@
 const cp = require('child_process')
-const assign = require('object-assign')
-const curry = require('curry')
 const vlcCommand = require('vlc-command')
 const { getUrl } = require('./util')
 
 const debug = require('debug')('dizzay:vlc-player')
-
-const sendCommand = curry((vlc, command) => vlc.stdin.write(`${command}\n`))
-const enqueue = curry((vlc, startAt, url) => {
-  debug('enqueue', url)
-  debug('seek', startAt)
-  const command = sendCommand(vlc)
-  command(`add ${url}`)
-  command(`next`)
-  startAt > 0 && command(`seek ${startAt}`)
-})
-
-const playMedia = curry((vlc, quality, startAt, media) => {
-  debug('playing', media)
-  if (!media) return sendCommand(vlc, 'stop')
-
-  getUrl(media, quality, (err) => {
-    if (err) {
-      sendCommand(vlc, 'stop')
-    } else {
-      enqueue(vlc)(startAt)
-    }
-  })
-})
 
 const parsePlugDate = (str) => new Date(`${str} UTC`)
 
@@ -47,29 +22,55 @@ const getSecondDiff = (start, end) => Math.round((end - start) / 1000)
 // referencing the VLC child process.
 //
 module.exports = function vlcPlayer(mp, { vlcArgs = [], quality }, cb) {
-  const oncommand = (command) => {
-    const vlc = cp.spawn(command, [ '--extraintf', 'rc', '--no-repeat', ...vlcArgs ])
-
-    const play = playMedia(vlc, quality)
-    const stop = () => vlc.kill('SIGTERM')
-
-    mp.on('advance', (next) => play(0)(next.media))
-    mp.on('roomState', (state) => play(
-      getSecondDiff(parsePlugDate(state.playback.startTime), Date.now())
-    )(state.playback.media))
-
-    return {
-      play: play(0),
-      stop,
-      vlc
-    }
+  let vlc
+  const start = (cb) => {
+    vlcCommand((err, command) => {
+      if (err) return cb(err)
+      vlc = cp.spawn(command, [
+        '--extraintf', 'rc',
+        '--no-repeat',
+        ...vlcArgs
+      ])
+      cb(null)
+    })
+  }
+  const close = () => {
+    stop()
+    vlc.kill('SIGTERM')
   }
 
-  return vlcCommand((err, command) => {
-    if (err) {
-      console.error('Could not find VLC')
-      return cb(err);
-    }
-    oncommand(command, cb);
-  });
+  const stop = () => {
+    vlc.stdin.write('stop\n')
+  }
+
+  const next = (media, startTime) => {
+    stop()
+    if (!media) return
+
+    getUrl(media, quality, (err, url) => {
+      if (err) {
+        console.error('vlc:', err.message)
+        return stop()
+      }
+
+      const startAt = startTime ? getSecondDiff(parsePlugDate(startTime), Date.now()) : 0
+      debug('enqueue', url)
+      debug('seek', startAt)
+      vlc.stdin.write(`add ${url}\n`)
+      vlc.stdin.write(`next\n`)
+      if (startAt > 0) vlc.stdin.write(`seek ${startAt}\n`)
+    })
+  }
+
+  mp.on('advance', (advance) => {
+    next(advance && advance.media)
+  })
+
+  mp.on('roomState', (state) => {
+    start(() => {
+      next(state.playback.media, state.playback.startTime)
+    })
+  })
+
+  mp.on('close', close)
 }
