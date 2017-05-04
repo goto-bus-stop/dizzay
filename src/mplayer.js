@@ -79,7 +79,10 @@ module.exports = function mplayer(mp, { mplayerArgs = [], mplayer: mplayerComman
 
   const next = (media, startTime) => media && media.cid
     ? getUrl(media, 'bestaudio', (err, url) => {
-        if (err) throw err;
+        if (err) {
+          console.error('mplayer:', err.message);
+          return stop();
+        }
         play(url, startTime);
       })
     : close();
