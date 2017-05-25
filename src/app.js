@@ -21,7 +21,7 @@ program
   .option('--mplayer',
           'play songs in mplayer.')
   .option('--ui',
-          'play songs and videos in a terminal ui.')
+          'play songs and videos in a terminal ui. (requires `dizzay-ui` addon)')
   .option('--now-playing',
           'log the current playing song to standard output.')
   .option('--mplayer-args <args>',
@@ -59,7 +59,13 @@ function main(args) {
     require('./mplayer')(mp, args)
   }
   if (args.ui) {
-    require('./ui')(mp, args)
+    try {
+      require('dizzay-ui')
+    } catch (err) {
+      err.message = `Could not find dizzay-ui: ${err.message}`
+      throw err
+    }
+    require('dizzay-ui')(mp, args)
   }
   if (args.nowPlaying) {
     require('./now-playing')(mp, args)

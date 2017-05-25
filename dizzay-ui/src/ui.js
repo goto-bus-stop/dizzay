@@ -1,6 +1,6 @@
 const blessed = require('blessed')
 const emoji = require('node-emoji')
-const { getUrl } = require('./util')
+const { getUrl } = require('dizzay/lib/util')
 const emojify = emoji.emojify.bind(emoji)
 
 const colors = {

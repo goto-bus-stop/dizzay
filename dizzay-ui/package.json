@@ -1,0 +1,31 @@
+{
+  "name": "dizzay-ui",
+  "description": "Terminal UI addon for Dizzay.",
+  "version": "0.0.0",
+  "license": "MIT",
+  "keywords": [
+    "dizzay",
+    "plug",
+    "plug.dj",
+    "music",
+    "mplayer",
+    "blessed"
+  ],
+  "bugs": "https://github.com/goto-bus-stop/dizzay/issues",
+  "author": "goto-bus-stop <rene@kooi.me>",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/goto-bus-stop/dizzay.git"
+  },
+  "main": "lib/ui.js",
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "debug": "^2.6.0",
+    "node-emoji": "^1.5.1",
+    "pty.js": "^0.3.1",
+    "term.js": "0.0.7"
+  },
+  "peerDependencies": {
+    "dizzay": "^0.8.0"
+  }
+}

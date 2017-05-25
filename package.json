@@ -38,7 +38,10 @@
   },
   "scripts": {
     "prepublish": "npm run build",
-    "build": "buble src -o lib --no modules",
+    "install:ui": "cd dizzay-ui && npm install && npm link ../ && cd ../ && npm link ./dizzay-ui",
+    "build:ui": "buble dizzay-ui/src -o dizzay-ui/lib --no modules",
+    "build:main": "buble src -o lib --no modules",
+    "build": "npm run build:main && npm run build:ui",
     "test": "echo 'No test specified' && true"
   }
 }
