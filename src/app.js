@@ -20,6 +20,8 @@ program
           'play songs in vlc.')
   .option('--mplayer',
           'play songs in mplayer.')
+  .option('--ui',
+          'play songs and videos in a terminal ui.')
   .option('--now-playing',
           'log the current playing song to standard output.')
   .option('--mplayer-args <args>',
@@ -33,7 +35,7 @@ program
 main(program)
 
 function main(args) {
-  if (args.vlc === undefined && args.mplayer === undefined) {
+  if (args.vlc === undefined && args.mplayer === undefined && args.ui === undefined) {
     debug('no player argument given, using vlc')
     args.vlc = true
   }
@@ -55,6 +57,9 @@ function main(args) {
   }
   if (args.mplayer) {
     require('./mplayer')(mp, args)
+  }
+  if (args.ui) {
+    require('./ui')(mp, args)
   }
   if (args.nowPlaying) {
     require('./now-playing')(mp, args)
