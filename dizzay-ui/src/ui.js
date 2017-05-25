@@ -130,7 +130,8 @@ module.exports = function ui(mp) {
     videoTitle.setContent(`Now Playing: ${media.author} - ${media.title}`)
 
     getUrl(media, 'best', (err, url) => {
-      if (url) playVideo(url)
+      if (err) stopVideo()
+      else if (url) playVideo(url)
     })
 
     screen.render()
@@ -142,8 +143,13 @@ module.exports = function ui(mp) {
   })
   mp.on('roomState', state => play(state.playback.media))
 
+  function stopVideo() {
+    if (!video) return
+    videoContainer.remove(video)
+    video.tty && video.tty.destroy()
+  }
+
   function playVideo(url) {
-    if (video) videoContainer.remove(video)
     video = blessed.video({
       parent: videoContainer,
       width: '100%',
