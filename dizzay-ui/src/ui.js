@@ -126,9 +126,6 @@ module.exports = function ui(mp) {
   })
 
   function play (media) {
-    const url = media.format === 1 ? `https://youtube.com/watch?v=${media.cid}`
-              : `https://api.soundcloud.com/tracks/${media.cid}`
-
     chatMessages.add(`{${colors.advance}-fg}Now Playing: ${media.author} - ${media.title}{/}`)
     videoTitle.setContent(`Now Playing: ${media.author} - ${media.title}`)
 
