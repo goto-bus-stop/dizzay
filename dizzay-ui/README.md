@@ -2,7 +2,7 @@
 
 `dizzay-ui` is an addon for [dizzay](https://github.com/goto-bus-stop/dizzay) that adds a fully terminal-based user interface.
 
-![screenshot](https://cloud.githubusercontent.com/assets/1006268/26473137/0865eb86-41aa-11e7-93b9-7aceb0cdedfe.png)
+![screenshot](../screens/dizzay-ui.png)
 
 `dizzay-ui` is available as an addon because it's niche and uses native (C++) dependencies, which require a compiler toolchain to install.
 You can use dizzay without it.
