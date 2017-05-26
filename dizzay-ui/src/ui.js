@@ -29,6 +29,14 @@ function colorify (mp, user) {
        : user.username
 }
 
+function parsePlugDate (str) {
+  return new Date(`${str} UTC`)
+}
+
+function getSecondDiff (start, end) {
+  return Math.round((end - start) / 1000)
+}
+
 module.exports = function ui(mp) {
   const screen = blessed.screen({
     title: 'Dizzay',
@@ -125,13 +133,16 @@ module.exports = function ui(mp) {
     screen.render()
   })
 
-  function play (media) {
+  function play (media, startTime) {
     chatMessages.add(`{${colors.advance}-fg}Now Playing: ${media.author} - ${media.title}{/}`)
     videoTitle.setContent(`Now Playing: ${media.author} - ${media.title}`)
 
     getUrl(media, 'best', (err, url) => {
       if (err) stopVideo()
-      else if (url) playVideo(url)
+      else if (url) {
+        const seek = startTime ? getSecondDiff(parsePlugDate(startTime), Date.now()) : 0
+        playVideo(url, seek)
+      }
     })
 
     screen.render()
@@ -141,7 +152,9 @@ module.exports = function ui(mp) {
   mp.on('login', () => {
     mp.ws.on('advance', adv => play(adv.m))
   })
-  mp.on('roomState', state => play(state.playback.media))
+  mp.on('roomState', state => {
+    play(state.playback.media, state.playback.startTime)
+  })
 
   function stopVideo() {
     if (!video) return
@@ -149,7 +162,7 @@ module.exports = function ui(mp) {
     video.tty && video.tty.destroy()
   }
 
-  function playVideo(url) {
+  function playVideo(url, start = 0) {
     video = blessed.video({
       parent: videoContainer,
       width: '100%',
@@ -158,7 +171,8 @@ module.exports = function ui(mp) {
       left: 0,
       border: 'line',
       file: url,
-      start
+      // Don't actually use `start`, it doesn't work in blessed
+      start: (start, 0)
     })
   }
 
