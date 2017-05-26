@@ -16,6 +16,12 @@ dizzay
 npm install --global dizzay
 ```
 
+And optionally, install the [terminal user interface](./dizzay-ui):
+
+```bash
+npm install --global dizzay-ui
+```
+
 ## Usage
 
     dizzay [options]
@@ -32,18 +38,20 @@ npm install --global dizzay
       -a, --audio-only           do not show videos.
       --vlc                      play songs in vlc.
       --mplayer                  play songs in mplayer.
+      --ui                       play songs and videos in a terminal ui. (requires `dizzay-ui` addon)
       --now-playing              log the current playing song to standard output.
       --mplayer-args <args>      string of space-separated command-line arguments to pass to mplayer.
       --vlc-args <args>          string of space-separated command-line arguments to pass to vlc.
 
-The `--vlc` and `--mplayer` flags determine which media player to use.
-If neither flags are given, VLC is used.
+The `--vlc`, `--mplayer` and `--ui` flags determine which media player to use.
+If none of those flags are given, VLC is used.
 
 Examples:
 
  * `dizzay --mplayer --now-playing tastycat`
  * `dizzay --vlc mrsuicidesheep-chillout`
  * `dizzay --now-playing --vlc loves-kpop`
+ * `dizzay --ui hummingbird-me`
 
 ## Dependencies
 

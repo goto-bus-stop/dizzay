@@ -25,7 +25,7 @@ dizzay --ui
 
 ## Dependencies
 
-`dizzay-ui` can use mplayer or mpv to provide video playback.
+`dizzay-ui` requires mplayer or mpv to provide video playback.
 See the [dizzay readme](../README.md#dependencies) for more.
 
 ## Building
