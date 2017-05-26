@@ -1,6 +1,6 @@
 const blessed = require('blessed')
 const emoji = require('node-emoji')
-const { getUrl } = require('dizzay/lib/util')
+const { getUrl } = requireDizzay('./util')
 const emojify = emoji.emojify.bind(emoji)
 
 const colors = {
@@ -157,9 +157,23 @@ module.exports = function ui(mp) {
       top: 1,
       left: 0,
       border: 'line',
-      file: url
+      file: url,
+      start
     })
   }
 
   screen.render()
+}
+
+// Require a module from the `dizzay/lib` folder.
+// If `dizzay` can be found up the node_modules tree, try to use that,
+// otherwise we assume we're being required by `dizzay/lib/app.js` and
+// use `module.parent` to require relative to there.
+function requireDizzay (name) {
+  try {
+    const modulePath = require('path').join('dizzay/lib', name)
+    return require(modulePath)
+  } catch (err) {
+    return module.parent.require(name)
+  }
 }
