@@ -62,8 +62,13 @@ function main(args) {
     try {
       require('dizzay-ui')
     } catch (err) {
-      err.message = `Could not find dizzay-ui: ${err.message}`
-      throw err
+      console.error(err.stack)
+      console.error()
+      console.error('Could not find dizzay-ui. Run this command to install it:')
+      console.error()
+      console.error('  npm install --global dizzay-ui')
+      console.error()
+      process.exit(1)
     }
     require('dizzay-ui')(mp, args)
   }
