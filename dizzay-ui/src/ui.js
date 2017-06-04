@@ -77,16 +77,16 @@ module.exports = function ui(mp) {
     left: 0,
     style: { bg: 'black' }
   })
-  const videoTitle = blessed.text({
+  const header = blessed.text({
     width: '100%',
     height: 1,
     align: 'center',
     top: 0,
-    content: 'Now Playing',
+    content: 'Loading...',
     style: { bg: 'black' }
   })
 
-  videoContainer.append(videoTitle)
+  videoContainer.append(header)
 
   screen.append(chatMessages)
   screen.append(chatBox)
@@ -105,6 +105,7 @@ module.exports = function ui(mp) {
 
   mp.on('roomState', (room) => {
     chatMessages.add(`{${colors.staff}-fg}${emojify(room.meta.welcome)}{/}`)
+    header.setContent(room.meta.name)
     screen.render()
   })
 
@@ -135,13 +136,12 @@ module.exports = function ui(mp) {
 
   function play (media, startTime) {
     chatMessages.add(`{${colors.advance}-fg}Now Playing: ${media.author} - ${media.title}{/}`)
-    videoTitle.setContent(`Now Playing: ${media.author} - ${media.title}`)
 
     getUrl(media, 'best', (err, url) => {
       if (err) stopVideo()
       else if (url) {
         const seek = startTime ? getSecondDiff(parsePlugDate(startTime), Date.now()) : 0
-        playVideo(url, seek)
+        playVideo(media, url, seek)
       }
     })
 
@@ -162,7 +162,7 @@ module.exports = function ui(mp) {
     video.tty && video.tty.destroy()
   }
 
-  function playVideo(url, start = 0) {
+  function playVideo(media, url, start = 0) {
     video = blessed.video({
       parent: videoContainer,
       width: '100%',
@@ -170,6 +170,7 @@ module.exports = function ui(mp) {
       top: 1,
       left: 0,
       border: 'line',
+      label: `${media.author} - ${media.title}`,
       file: url,
       // Don't actually use `start`, it doesn't work in blessed
       start: (start, 0)
