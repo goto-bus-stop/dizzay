@@ -1,6 +1,8 @@
 dizzay
 ======
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/goto-bus-stop/dizzay.svg)](https://greenkeeper.io/)
+
 `dizzay` (/ˈdɪːdʒeɪ/) is a command-line program that plays media from a plug.dj room in VLC or in Mplayer.
 
 [Installation](#installation) -
