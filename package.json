@@ -30,11 +30,15 @@
     "ytdl-core": "^0.17.0"
   },
   "devDependencies": {
-    "buble": "^0.15.2"
+    "buble": "^0.15.2",
+    "dizzay-ui": "file:dizzay-ui"
   },
   "scripts": {
     "prepublish": "npm run build",
-    "build": "buble src -o lib --no modules",
+    "install:ui": "cd dizzay-ui && npm install",
+    "build:ui": "buble dizzay-ui/src -o dizzay-ui/lib --no modules",
+    "build:main": "buble src -o lib --no modules",
+    "build": "npm run build:main && npm run build:ui",
     "test": "echo 'No test specified' && true"
   }
 }

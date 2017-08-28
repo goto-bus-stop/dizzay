@@ -20,6 +20,8 @@ program
           'play songs in vlc.')
   .option('--mplayer',
           'play songs in mplayer.')
+  .option('--ui',
+          'play songs and videos in a terminal ui. (requires `dizzay-ui` addon)')
   .option('--now-playing',
           'log the current playing song to standard output.')
   .option('--mplayer-args <args>',
@@ -33,7 +35,7 @@ program
 main(program)
 
 function main(args) {
-  if (args.vlc === undefined && args.mplayer === undefined) {
+  if (args.vlc === undefined && args.mplayer === undefined && args.ui === undefined) {
     debug('no player argument given, using vlc')
     args.vlc = true
   }
@@ -55,6 +57,20 @@ function main(args) {
   }
   if (args.mplayer) {
     require('./mplayer')(mp, args)
+  }
+  if (args.ui) {
+    try {
+      require('dizzay-ui')
+    } catch (err) {
+      console.error(err.stack)
+      console.error()
+      console.error('Could not find dizzay-ui. Run this command to install it:')
+      console.error()
+      console.error('  npm install --global dizzay-ui')
+      console.error()
+      process.exit(1)
+    }
+    require('dizzay-ui')(mp, args)
   }
   if (args.nowPlaying) {
     require('./now-playing')(mp, args)
