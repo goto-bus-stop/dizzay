@@ -30,7 +30,7 @@
     "ytdl-core": "^0.20.0"
   },
   "devDependencies": {
-    "buble": "^0.16.0"
+    "buble": "^0.17.0"
   },
   "scripts": {
     "prepublish": "npm run build",
