@@ -16,7 +16,7 @@
     "type": "git",
     "url": "http://github.com/goto-bus-stop/dizzay.git"
   },
-  "main": "lib/vlc-player",
+  "main": "src/vlc-player",
   "bin": "bin/dizzay",
   "dependencies": {
     "commander": "^2.9.0",
@@ -29,12 +29,10 @@
     "vlc-command": "^1.1.1",
     "ytdl-core": "^0.20.0"
   },
-  "devDependencies": {
-    "buble": "^0.16.0"
+  "engines": {
+    "node": ">= 8"
   },
   "scripts": {
-    "prepublish": "npm run build",
-    "build": "buble src -o lib --no modules",
     "test": "echo 'No test specified' && true"
   }
 }
