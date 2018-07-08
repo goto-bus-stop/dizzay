@@ -49,7 +49,15 @@ function main(args) {
 
   args.room = args.room.replace(/^https:\/\/plug\.dj\//, '')
 
-  const mp = miniplug(args.user ? { email: args.user, password: args.password } : {})
+  const mp = miniplug()
+  mp.connect(args.user ? { email: args.user, password: args.password } : {})
+    .then(() => mp.join(args.room))
+    .catch((err) => {
+      console.error('Could not connect to plug.dj:')
+      console.error(err.stack)
+      process.exit(1)
+    })
+
   if (args.vlc) {
     require('./vlc-player')(mp, args)
   }
@@ -59,12 +67,6 @@ function main(args) {
   if (args.nowPlaying) {
     require('./now-playing')(mp, args)
   }
-
-  mp.join(args.room).catch((err) => {
-    console.error('Could not connect to plug.dj:')
-    console.error(err.stack)
-    process.exit(1)
-  })
 
   process.on('beforeExit', () => {
     mp.emit('close')

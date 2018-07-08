@@ -19,15 +19,15 @@
   "main": "src/vlc-player",
   "bin": "bin/dizzay",
   "dependencies": {
-    "commander": "^2.9.0",
-    "concat-stream": "^1.6.0",
+    "commander": "^2.16.0",
+    "concat-stream": "^1.6.2",
     "debug": "^3.0.0",
-    "http-proxy": "^1.16.2",
+    "http-proxy": "^1.17.0",
     "jsonist": "^2.1.0",
-    "miniplug": "^1.3.3",
-    "run-series": "^1.1.4",
+    "miniplug": "^2.0.1",
+    "run-series": "^1.1.8",
     "vlc-command": "^1.1.1",
-    "ytdl-core": "^0.20.0"
+    "ytdl-core": "^0.20.4"
   },
   "engines": {
     "node": ">= 8"
