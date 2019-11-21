@@ -27,7 +27,7 @@
     "miniplug": "^2.0.1",
     "run-series": "^1.1.8",
     "vlc-command": "^1.1.1",
-    "ytdl-core": "^0.21.0"
+    "ytdl-core": "^1.0.1"
   },
   "engines": {
     "node": ">= 8"
